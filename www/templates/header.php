@@ -30,7 +30,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <title><?= isset($pageTitle) ? Helpers::e($pageTitle) . ' - ' : '' ?>Haken Dran Verfahrenstracker</title>
 
     <!-- Bulma CSS -->
-    <link rel="stylesheet" href="/assets/vendor/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/assets/css/style.css">
