@@ -241,7 +241,7 @@ $topDisputes = $db->query("
 </div>
 
 <!-- Chart.js -->
-<script src="/assets/vendor/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.51.0/dist/chart.umd.min.js"></script>
 <script>
 // Theme-aware Colors
 const isDark = document.documentElement.getAttribute('data-theme') === 'dark';

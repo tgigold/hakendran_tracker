@@ -92,11 +92,13 @@ www/assets/vendor/
 HINWEISE
 ================================================================================
 
-- Die Anwendung funktioniert OHNE diese Dateien nicht vollständig!
+- ✅ AKTUALISIERT: Die Anwendung nutzt jetzt CDN-Links für Bibliotheken
+- CDN-Links sind direkt in den Templates eingebunden (header.php, stats.php)
 - Alle Bibliotheken sind MIT-lizenziert und können frei verwendet werden
-- CDN-Links sind in dieser Anwendung NICHT verwendet (Shared Hosting)
+- Bulma CSS: https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css
+- Chart.js: https://cdn.jsdelivr.net/npm/chart.js@4.51.0/dist/chart.umd.min.js
+- Kein manueller Download mehr nötig!
 - Überprüfen Sie regelmäßig auf Updates für Sicherheit und Features
-- Für Produktion: Verwenden Sie immer die .min.css/.min.js Versionen
 
 
 ================================================================================

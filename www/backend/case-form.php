@@ -395,7 +395,7 @@ $csrfToken = $auth->generateCsrfToken();
 
             <!-- Section 4: Finanzielle Details -->
             <div class="box">
-                <h2 class="title is-5">💰 Finanzielle Details</h2>
+                <h2 class="title is-5">Finanzielle Details</h2>
 
                 <div class="columns">
                     <div class="column is-4">
@@ -448,7 +448,7 @@ $csrfToken = $auth->generateCsrfToken();
 
             <!-- Section 5: Termine -->
             <div class="box">
-                <h2 class="title is-5">📅 Termine</h2>
+                <h2 class="title is-5">Termine</h2>
 
                 <div class="columns">
                     <div class="column is-4">
