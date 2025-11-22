@@ -83,13 +83,31 @@ function parseParties($partiesString) {
 <!-- Hero mit Suchfeld -->
 <div class="search-hero">
     <div class="container">
-        <h1 class="title is-2 has-text-centered">
-            Haken Dran Verfahrenstracker
+        <h1 class="title is-2 has-text-centered" style="margin-bottom: 1.5rem;">
+            Weltweit tracken wir derzeit <?= $stats['total_cases'] ?> Gerichtsverfahren gegen BigTech – und das ist nur der Anfang
         </h1>
-        <p class="subtitle has-text-centered" style="color: rgba(255,255,255,0.9); margin-bottom: 2rem;">
-            Durchsuchbare Datenbank aller Gerichtsverfahren gegen große Tech-Konzerne<br>
-            Kartellrecht • DSA/DMA • Datenschutz • Behördenverfahren
-        </p>
+
+        <!-- Statistik-Übersicht -->
+        <div class="columns is-centered" style="margin-bottom: 2rem;">
+            <div class="column is-narrow">
+                <div style="text-align: center; padding: 1rem 2rem;">
+                    <div class="stat-value" style="color: white; font-size: 2.5rem; font-weight: bold;"><?= $stats['total_cases'] ?></div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9); font-size: 1rem;">Gesamt</div>
+                </div>
+            </div>
+            <div class="column is-narrow">
+                <div style="text-align: center; padding: 1rem 2rem;">
+                    <div class="stat-value" style="color: white; font-size: 2.5rem; font-weight: bold;"><?= $stats['ongoing_cases'] ?></div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9); font-size: 1rem;">Laufend</div>
+                </div>
+            </div>
+            <div class="column is-narrow">
+                <div style="text-align: center; padding: 1rem 2rem;">
+                    <div class="stat-value" style="color: white; font-size: 2.5rem; font-weight: bold;"><?= count($upcomingHearings) ?></div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.9); font-size: 1rem;">Diese Woche anstehend</div>
+                </div>
+            </div>
+        </div>
 
         <div class="field">
             <div class="control has-icons-left">
@@ -109,33 +127,6 @@ function parseParties($partiesString) {
 </div>
 
 <div class="container">
-    <!-- Statistik-Übersicht -->
-    <div class="columns is-multiline" style="margin-bottom: 2rem;">
-        <div class="column is-3">
-            <div class="box stat-card">
-                <div class="stat-value"><?= $stats['total_cases'] ?></div>
-                <div class="stat-label">Verfahren</div>
-            </div>
-        </div>
-        <div class="column is-3">
-            <div class="box stat-card">
-                <div class="stat-value"><?= $stats['ongoing_cases'] ?></div>
-                <div class="stat-label">Laufend</div>
-            </div>
-        </div>
-        <div class="column is-3">
-            <div class="box stat-card">
-                <div class="stat-value"><?= count($upcomingHearings) ?></div>
-                <div class="stat-label">Anstehend</div>
-            </div>
-        </div>
-        <div class="column is-3">
-            <div class="box stat-card">
-                <div class="stat-value"><?= $stats['big_tech_count'] ?></div>
-                <div class="stat-label">Big Tech</div>
-            </div>
-        </div>
-    </div>
 
     <!-- Anstehende Anhörungen -->
     <?php if (!empty($upcomingHearings)): ?>
@@ -202,57 +193,56 @@ function parseParties($partiesString) {
             <a href="/cases.php" class="button is-primary">Alle Verfahren</a>
         </div>
 
-        <div class="columns is-multiline">
-            <?php foreach ($latestCases as $case):
-                $parties = parseParties($case['parties']);
-                $vs = '';
-                if (!empty($parties['plaintiffs']) && !empty($parties['defendants'])) {
-                    $vs = Helpers::truncate($parties['plaintiffs'][0], 30) . ' vs ' . Helpers::truncate($parties['defendants'][0], 30);
-                }
-            ?>
-            <div class="column is-4">
-                <div class="card case-card">
-                    <div class="card-content">
-                        <div class="case-card-header">
-                            <div>
-                                <?= Helpers::statusBadge($case['status']) ?>
-                            </div>
-                            <div>
-                                <?php if ($case['country_code']): ?>
-                                    <span class="tag is-light"><?= Helpers::countryFlag($case['country_code']) ?> <?= Helpers::e($case['country_code']) ?></span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <div class="case-card-title">
-                            <a href="/case.php?id=<?= $case['id'] ?>">
-                                <?= Helpers::e(Helpers::truncate($case['title'], 80)) ?>
+        <div class="table-container">
+            <table class="table is-fullwidth is-hoverable">
+                <thead>
+                    <tr>
+                        <th>Verfahren</th>
+                        <th>Beteiligte</th>
+                        <th style="width: 150px;">Land</th>
+                        <th style="width: 150px;">Status</th>
+                        <th style="width: 150px;">Eingereicht</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($latestCases as $case):
+                        $parties = parseParties($case['parties']);
+                        $vs = '';
+                        if (!empty($parties['plaintiffs']) && !empty($parties['defendants'])) {
+                            $vs = Helpers::truncate($parties['plaintiffs'][0], 30) . ' vs ' . Helpers::truncate($parties['defendants'][0], 30);
+                        }
+                    ?>
+                    <tr>
+                        <td>
+                            <a href="/case.php?id=<?= $case['id'] ?>" class="has-text-weight-semibold">
+                                <?= Helpers::e(Helpers::truncate($case['title'], 60)) ?>
                             </a>
-                        </div>
-
-                        <?php if ($vs): ?>
-                        <div class="case-card-meta">
-                            <?= Helpers::e($vs) ?>
-                        </div>
-                        <?php endif; ?>
-
-                        <div class="case-card-meta" style="margin-top: 0.5rem;">
-                            <?php if ($case['date_filed']): ?>
-                                📄 Eingereicht: <?= Helpers::formatDate($case['date_filed']) ?>
+                            <?php if ($case['case_number']): ?>
+                                <br><span class="is-size-7 has-text-grey"><?= Helpers::e($case['case_number']) ?></span>
                             <?php endif; ?>
-                        </div>
-
-                        <?php if ($case['amount_disputed']): ?>
-                        <div style="margin-top: 0.5rem;">
-                            <span class="tag is-warning">
-                                <?= Helpers::formatCurrency($case['amount_disputed'], $case['currency']) ?>
-                            </span>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
+                        </td>
+                        <td>
+                            <?php if ($vs): ?>
+                                <span class="is-size-7"><?= Helpers::e($vs) ?></span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($case['country_code']): ?>
+                                <?= Helpers::countryFlag($case['country_code']) ?> <?= Helpers::e($case['country_code']) ?>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?= Helpers::statusBadge($case['status']) ?>
+                        </td>
+                        <td>
+                            <?php if ($case['date_filed']): ?>
+                                <?= Helpers::formatDate($case['date_filed']) ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
     </section>
 
@@ -261,15 +251,13 @@ function parseParties($partiesString) {
     <section class="section" style="padding-top: 0; padding-bottom: 3rem;">
         <h2 class="title is-4">Themen & Tags</h2>
 
-        <div class="box">
-            <div class="tag-cloud">
-                <?php foreach ($popularTags as $tag): ?>
-                    <a href="/cases.php?tag=<?= urlencode($tag['name']) ?>" class="tag is-medium is-link">
-                        #<?= Helpers::e($tag['name']) ?>
-                        <span class="tag is-rounded" style="margin-left: 0.5rem;"><?= $tag['case_count'] ?></span>
-                    </a>
-                <?php endforeach; ?>
-            </div>
+        <div class="tag-cloud">
+            <?php foreach ($popularTags as $tag): ?>
+                <a href="/cases.php?tag=<?= urlencode($tag['name']) ?>" class="tag is-medium is-link">
+                    #<?= Helpers::e($tag['name']) ?>
+                    <span class="tag is-rounded" style="margin-left: 0.5rem;"><?= $tag['case_count'] ?></span>
+                </a>
+            <?php endforeach; ?>
         </div>
     </section>
     <?php endif; ?>

@@ -400,71 +400,76 @@ function parseParties($partiesString) {
                 Keine Verfahren gefunden. Versuchen Sie, die Filter anzupassen.
             </div>
         <?php else: ?>
-            <div class="columns is-multiline">
-                <?php foreach ($cases as $case):
-                    $parties = parseParties($case['parties']);
-                    $vs = '';
-                    if (!empty($parties['plaintiffs']) && !empty($parties['defendants'])) {
-                        $vs = Helpers::truncate($parties['plaintiffs'][0], 30) . ' vs ' . Helpers::truncate($parties['defendants'][0], 30);
-                    }
-                ?>
-                <div class="column is-6">
-                    <div class="card case-card" style="height: 100%;">
-                        <div class="card-content">
-                            <div class="case-card-header">
-                                <div>
-                                    <?= Helpers::statusBadge($case['status']) ?>
-                                </div>
-                                <div>
-                                    <?php if ($case['country_code']): ?>
-                                        <span class="tag is-light"><?= Helpers::countryFlag($case['country_code']) ?> <?= Helpers::e($case['country_code']) ?></span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-
-                            <div class="case-card-title">
-                                <a href="/case.php?id=<?= $case['id'] ?>">
-                                    <?= Helpers::e($case['title']) ?>
+            <div class="table-container">
+                <table class="table is-fullwidth is-hoverable">
+                    <thead>
+                        <tr>
+                            <th>Verfahren</th>
+                            <th>Beteiligte</th>
+                            <th style="width: 120px;">Land</th>
+                            <th style="width: 120px;">Status</th>
+                            <th style="width: 130px;">Eingereicht</th>
+                            <th style="width: 150px;">Streitwert</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($cases as $case):
+                            $parties = parseParties($case['parties']);
+                            $vs = '';
+                            if (!empty($parties['plaintiffs']) && !empty($parties['defendants'])) {
+                                $vs = Helpers::truncate($parties['plaintiffs'][0], 25) . ' vs ' . Helpers::truncate($parties['defendants'][0], 25);
+                            }
+                        ?>
+                        <tr>
+                            <td>
+                                <a href="/case.php?id=<?= $case['id'] ?>" class="has-text-weight-semibold">
+                                    <?= Helpers::e(Helpers::truncate($case['title'], 70)) ?>
                                 </a>
-                            </div>
-
-                            <?php if ($vs): ?>
-                            <div class="case-card-meta">
-                                <?= Helpers::e($vs) ?>
-                            </div>
-                            <?php endif; ?>
-
-                            <div class="case-card-meta" style="margin-top: 0.75rem;">
-                                <?php if ($case['court_name']): ?>
-                                    <?= Helpers::e(Helpers::truncate($case['court_name'], 50)) ?><br>
+                                <?php if ($case['case_number']): ?>
+                                    <br><span class="is-size-7 has-text-grey"><?= Helpers::e($case['case_number']) ?></span>
                                 <?php endif; ?>
+                                <?php if ($case['court_name']): ?>
+                                    <br><span class="is-size-7 has-text-grey"><?= Helpers::e(Helpers::truncate($case['court_name'], 50)) ?></span>
+                                <?php endif; ?>
+                                <?php if ($case['tags']): ?>
+                                    <br>
+                                    <?php foreach (array_slice(explode(', ', $case['tags']), 0, 3) as $tagName): ?>
+                                        <span class="tag is-link is-light is-small">#<?= Helpers::e($tagName) ?></span>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($vs): ?>
+                                    <span class="is-size-7"><?= Helpers::e($vs) ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($case['country_code']): ?>
+                                    <?= Helpers::countryFlag($case['country_code']) ?> <?= Helpers::e($case['country_code']) ?>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?= Helpers::statusBadge($case['status']) ?>
+                            </td>
+                            <td>
                                 <?php if ($case['date_filed']): ?>
-                                    📄 Eingereicht: <?= Helpers::formatDate($case['date_filed']) ?><br>
+                                    <?= Helpers::formatDate($case['date_filed']) ?>
                                 <?php endif; ?>
                                 <?php if ($case['next_hearing_date']): ?>
-                                    📅 Nächste Anhörung: <?= Helpers::formatDate($case['next_hearing_date']) ?>
+                                    <br><span class="is-size-7 has-text-grey">Anhörung: <?= Helpers::formatDate($case['next_hearing_date']) ?></span>
                                 <?php endif; ?>
-                            </div>
-
-                            <?php if ($case['amount_disputed']): ?>
-                            <div style="margin-top: 0.75rem;">
-                                <span class="tag is-warning is-medium">
-                                    <?= Helpers::formatCurrency($case['amount_disputed'], $case['currency']) ?>
-                                </span>
-                            </div>
-                            <?php endif; ?>
-
-                            <?php if ($case['tags']): ?>
-                            <div style="margin-top: 0.75rem;">
-                                <?php foreach (explode(', ', $case['tags']) as $tagName): ?>
-                                    <span class="tag is-light is-small">#<?= Helpers::e($tagName) ?></span>
-                                <?php endforeach; ?>
-                            </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-                <?php endforeach; ?>
+                            </td>
+                            <td>
+                                <?php if ($case['amount_disputed']): ?>
+                                    <span class="tag is-warning">
+                                        <?= Helpers::formatCurrency($case['amount_disputed'], $case['currency']) ?>
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Pagination -->
