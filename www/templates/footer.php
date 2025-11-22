@@ -11,7 +11,10 @@
                 Kartellrecht • DSA/DMA • Datenschutz • Behördenverfahren • Zivilklagen
             </p>
             <p class="is-size-7">
-                <a href="https://linktr.ee/hakendran" target="_blank" rel="noopener">Hakendran</a> •
+                <a href="/about.php">Über uns</a> •
+                <a href="/impressum.php">Impressum</a> •
+                <a href="/datenschutz.php">Datenschutz</a> •
+                <a href="https://linktr.ee/hakendran" target="_blank" rel="noopener">Haken Dran</a> •
                 <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
             </p>
         </div>

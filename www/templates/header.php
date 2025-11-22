@@ -95,6 +95,9 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                 <a class="navbar-item" href="/backend/parties.php">
                                     Beteiligte verwalten
                                 </a>
+                                <a class="navbar-item" href="/backend/users.php">
+                                    Benutzer verwalten
+                                </a>
                                 <hr class="navbar-divider">
                                 <a class="navbar-item" href="/backend/logout.php">
                                     Abmelden
