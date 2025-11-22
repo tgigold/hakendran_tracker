@@ -50,8 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="column is-5-tablet is-4-desktop">
                         <div class="box" style="border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
                             <div style="text-align: center; margin-bottom: 2rem;">
-                                <span style="font-size: 4rem;">🏛️</span>
-                                <h1 class="title is-4" style="margin-top: 1rem;">Gerichtstracker</h1>
+                                <div style="width: 80px; height: 80px; margin: 0 auto; background-color: #125882; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="40" height="40">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </div>
+                                <h1 class="title is-4" style="margin-top: 1rem;">Haken Dran Verfahrenstracker</h1>
                                 <p class="subtitle is-6">Backend-Login</p>
                             </div>
 
