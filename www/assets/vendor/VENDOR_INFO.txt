@@ -1,0 +1,111 @@
+================================================================================
+HAKENDRAN GERICHTSTRACKER - EXTERNE BIBLIOTHEKEN
+================================================================================
+
+Dieser Ordner (/www/assets/vendor/) muss folgende externe Bibliotheken enthalten:
+
+--------------------------------------------------------------------------------
+1. Bulma CSS Framework
+--------------------------------------------------------------------------------
+Dateiname: bulma.min.css
+Download:  https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css
+Version:   0.9.4 oder höher
+Lizenz:    MIT
+
+Beschreibung:
+Modernes CSS-Framework für responsive Layouts und UI-Komponenten.
+
+
+--------------------------------------------------------------------------------
+2. Chart.js
+--------------------------------------------------------------------------------
+Dateiname: chart.min.js
+Download:  https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js
+Version:   4.4.0 oder höher
+Lizenz:    MIT
+
+Beschreibung:
+JavaScript-Bibliothek für Diagramme und Visualisierungen (Statistik-Seite).
+
+
+--------------------------------------------------------------------------------
+3. Parsedown (Optional - bereits inkludiert)
+--------------------------------------------------------------------------------
+Die Parsedown-Library für Markdown-Parsing ist bereits in
+/www/libraries/Parsedown.php inkludiert (vereinfachte Version).
+
+Für erweiterte Markdown-Features, laden Sie die vollständige Version herunter:
+Download:  https://raw.githubusercontent.com/erusev/parsedown/master/Parsedown.php
+Version:   1.7.4 oder höher
+Lizenz:    MIT
+
+
+================================================================================
+INSTALLATION - OPTION 1: MANUELLER DOWNLOAD
+================================================================================
+
+1. Öffnen Sie die Download-URLs in Ihrem Browser
+2. Speichern Sie die Dateien als:
+   - bulma.min.css
+   - chart.min.js
+3. Laden Sie die Dateien in diesen Ordner hoch
+
+
+================================================================================
+INSTALLATION - OPTION 2: WGET/CURL (Linux/Mac)
+================================================================================
+
+cd /pfad/zum/projekt/www/assets/vendor/
+
+# Bulma CSS
+curl -o bulma.min.css https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css
+
+# Chart.js
+curl -o chart.min.js https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js
+
+
+================================================================================
+INSTALLATION - OPTION 3: NPM (falls Node.js verfügbar)
+================================================================================
+
+HINWEIS: NPM wird NICHT für den Produktionsbetrieb benötigt!
+Diese Option ist nur zum lokalen Testen gedacht.
+
+npm install bulma chart.js
+
+Dann manuell kopieren:
+cp node_modules/bulma/css/bulma.min.css www/assets/vendor/
+cp node_modules/chart.js/dist/chart.umd.min.js www/assets/vendor/chart.min.js
+
+
+================================================================================
+VERZEICHNISSTRUKTUR NACH DER INSTALLATION
+================================================================================
+
+www/assets/vendor/
+├── VENDOR_INFO.txt (diese Datei)
+├── bulma.min.css
+└── chart.min.js
+
+
+================================================================================
+HINWEISE
+================================================================================
+
+- Die Anwendung funktioniert OHNE diese Dateien nicht vollständig!
+- Alle Bibliotheken sind MIT-lizenziert und können frei verwendet werden
+- CDN-Links sind in dieser Anwendung NICHT verwendet (Shared Hosting)
+- Überprüfen Sie regelmäßig auf Updates für Sicherheit und Features
+- Für Produktion: Verwenden Sie immer die .min.css/.min.js Versionen
+
+
+================================================================================
+SUPPORT
+================================================================================
+
+Bei Problemen mit der Installation:
+1. Überprüfen Sie Schreibrechte im Ordner
+2. Stellen Sie sicher, dass die Dateinamen exakt übereinstimmen
+3. Validieren Sie die heruntergeladenen Dateien (keine HTML-Fehlerseiten)
+
+Projekt-Repository: [Ihr GitHub-Link]

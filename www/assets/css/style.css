@@ -1,0 +1,431 @@
+/**
+ * Hakendran Gerichtstracker - Custom Styles
+ * Bulma CSS mit Darkmode-Support
+ */
+
+/* ============================================
+   CSS-Variablen
+   ============================================ */
+:root {
+    /* Light Theme - inspiriert von linktr.ee/hakendran */
+    --primary-color: #8B5CF6;
+    --primary-dark: #7C3AED;
+    --secondary-color: #EC4899;
+    --background: #FFFFFF;
+    --background-secondary: #F9FAFB;
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --border-color: #E5E7EB;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --primary-color: #A78BFA;
+    --primary-dark: #8B5CF6;
+    --secondary-color: #F472B6;
+    --background: #1F2937;
+    --background-secondary: #111827;
+    --text-primary: #F9FAFB;
+    --text-secondary: #D1D5DB;
+    --border-color: #374151;
+    --shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   Global Styles
+   ============================================ */
+html {
+    background-color: var(--background);
+    transition: background-color 0.3s ease;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+}
+
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+/* ============================================
+   Navigation
+   ============================================ */
+.navbar {
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+[data-theme="dark"] .navbar.is-dark {
+    background-color: var(--background-secondary);
+}
+
+.navbar-item.is-active {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* ============================================
+   Cards & Boxes
+   ============================================ */
+.box, .card {
+    background-color: var(--background);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px var(--shadow);
+}
+
+[data-theme="dark"] .box,
+[data-theme="dark"] .card {
+    background-color: var(--background-secondary);
+}
+
+.card-header {
+    background-color: var(--background-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ============================================
+   Form Elements
+   ============================================ */
+.input, .textarea, .select select {
+    background-color: var(--background);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .input,
+[data-theme="dark"] .textarea,
+[data-theme="dark"] .select select {
+    background-color: var(--background-secondary);
+    border-color: var(--border-color);
+}
+
+.input:focus, .textarea:focus, .select select:focus {
+    border-color: var(--primary-color);
+}
+
+.label {
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.button.is-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.button.is-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+.table {
+    background-color: var(--background);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .table {
+    background-color: var(--background-secondary);
+}
+
+.table thead th {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.table tbody tr:hover {
+    background-color: var(--background-secondary);
+}
+
+.table td, .table th {
+    border-color: var(--border-color);
+}
+
+/* ============================================
+   Tags & Badges
+   ============================================ */
+.tag:not(body) {
+    font-weight: 600;
+}
+
+.tag.is-info {
+    background-color: #3B82F6;
+}
+
+.tag.is-success {
+    background-color: #10B981;
+}
+
+.tag.is-warning {
+    background-color: #F59E0B;
+}
+
+.tag.is-light {
+    background-color: #9CA3AF;
+}
+
+.tag.is-link {
+    background-color: #8B5CF6;
+}
+
+/* ============================================
+   Timeline (für Case-Updates)
+   ============================================ */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.5rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    border: 2px solid var(--background);
+}
+
+.timeline-item.is-major::before {
+    width: 16px;
+    height: 16px;
+    left: -2.7rem;
+    background-color: var(--secondary-color);
+}
+
+.timeline-item .icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+/* ============================================
+   Search Box
+   ============================================ */
+.search-hero {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    padding: 3rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    color: white;
+}
+
+.search-hero h1 {
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.search-hero .control.has-icons-left input {
+    padding-left: 3rem;
+    font-size: 1.1rem;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+.footer {
+    background-color: var(--background-secondary);
+    border-top: 1px solid var(--border-color);
+    margin-top: 3rem;
+}
+
+/* ============================================
+   Notifications & Messages
+   ============================================ */
+.notification {
+    background-color: var(--background-secondary);
+    border-left: 4px solid var(--primary-color);
+}
+
+.message {
+    background-color: var(--background);
+}
+
+[data-theme="dark"] .message {
+    background-color: var(--background-secondary);
+}
+
+.message-header {
+    background-color: var(--primary-color);
+}
+
+/* ============================================
+   Utilities
+   ============================================ */
+.has-text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 1.5rem 0;
+}
+
+.icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Stats Cards */
+.stat-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.stat-card .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-card .stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Case Cards */
+.case-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.case-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.case-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 0.75rem;
+}
+
+.case-card-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.case-card-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Tag Cloud */
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag-cloud .tag {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.tag-cloud .tag:hover {
+    transform: scale(1.05);
+}
+
+/* Filter Panel */
+.filter-panel {
+    background-color: var(--background-secondary);
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+}
+
+.filter-panel .field:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .search-hero {
+        padding: 2rem 1rem;
+    }
+
+    .stat-card .stat-value {
+        font-size: 2rem;
+    }
+}
+
+/* Loading Spinner */
+.spinner {
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 0.8s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Pagination */
+.pagination-link.is-current {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Dropdown */
+[data-theme="dark"] .dropdown-content {
+    background-color: var(--background-secondary);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background-color: var(--background);
+}
