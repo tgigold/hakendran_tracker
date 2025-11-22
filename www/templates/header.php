@@ -27,7 +27,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($pageTitle) ? Helpers::e($pageTitle) . ' - ' : '' ?>Hakendran Gerichtstracker</title>
+    <title><?= isset($pageTitle) ? Helpers::e($pageTitle) . ' - ' : '' ?>Haken Dran Verfahrenstracker</title>
 
     <!-- Bulma CSS -->
     <link rel="stylesheet" href="/assets/vendor/bulma.min.css">
@@ -36,7 +36,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏛️</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23125882'/></svg>">
 </head>
 <body>
     <!-- Navigation -->
@@ -44,10 +44,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
         <div class="container">
             <div class="navbar-brand">
                 <a class="navbar-item" href="/index.php">
-                    <span class="icon is-large">
-                        <span style="font-size: 2rem;">🏛️</span>
-                    </span>
-                    <span style="margin-left: 0.5rem; font-weight: 600;">Hakendran Gerichtstracker</span>
+                    <span style="font-weight: 700; font-size: 1.25rem;">Haken Dran Verfahrenstracker</span>
                 </a>
 
                 <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="mainNavbar">

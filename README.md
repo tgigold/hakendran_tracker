@@ -249,13 +249,24 @@ Siehe `schema.sql` für das vollständige Schema.
 ## 🛠️ Tech-Stack
 
 - **Backend:** PHP 8.x mit PDO
-- **Datenbank:** MySQL 8.x
-- **Frontend:** Bulma CSS 0.9.4
-- **JavaScript:** Vanilla JS + Chart.js 4.4
+- **Datenbank:** MySQL 8.x mit track_ Tabellenpräfix
+- **Frontend:** Bulma CSS 1.0.4
+- **JavaScript:** Vanilla JS + Chart.js 4.51
 - **Markdown:** Parsedown
 - **Security:** Argon2ID, Prepared Statements, CSRF-Tokens
+- **Benutzerverwaltung:** MySQL-basiert (nicht statische Datei)
 
 ## 📝 Changelog
+
+### Version 2.0 (2025-01-22)
+- **BREAKING CHANGE:** Tabellen-Präfix "track_" für alle MySQL-Tabellen
+- **BREAKING CHANGE:** MySQL-basierte Benutzerverwaltung (statt user.auth.php)
+- Benutzernamen mit @ Präfix (z.B. @admin)
+- Neue Farben: Primär #125882, Sekundär #00b595
+- Vereinfachtes Search-Hero Design
+- update.php Script für Migration von v1.0
+- Bulma CSS 1.0.4
+- Chart.js 4.51
 
 ### Version 1.0.0 (2025-01-22)
 - Initiale Version

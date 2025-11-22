@@ -14,9 +14,9 @@ $db = Database::getInstance();
 $upcomingHearings = $db->query("
     SELECT c.*,
            GROUP_CONCAT(DISTINCT CONCAT(p.name, ':', cp.role) SEPARATOR '|') as parties
-    FROM cases c
-    LEFT JOIN case_parties cp ON c.id = cp.case_id
-    LEFT JOIN parties p ON cp.party_id = p.id
+    FROM track_cases c
+    LEFT JOIN track_case_parties cp ON c.id = cp.case_id
+    LEFT JOIN track_parties p ON cp.party_id = p.id
     WHERE c.next_hearing_date >= CURDATE()
       AND c.next_hearing_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
       AND c.public_visibility = 1
@@ -29,9 +29,9 @@ $upcomingHearings = $db->query("
 $latestCases = $db->query("
     SELECT c.*,
            GROUP_CONCAT(DISTINCT CONCAT(p.name, ':', cp.role) SEPARATOR '|') as parties
-    FROM cases c
-    LEFT JOIN case_parties cp ON c.id = cp.case_id
-    LEFT JOIN parties p ON cp.party_id = p.id
+    FROM track_cases c
+    LEFT JOIN track_case_parties cp ON c.id = cp.case_id
+    LEFT JOIN track_parties p ON cp.party_id = p.id
     WHERE c.public_visibility = 1
     GROUP BY c.id
     ORDER BY c.created_at DESC
@@ -41,8 +41,8 @@ $latestCases = $db->query("
 // Beliebte Tags
 $popularTags = $db->query("
     SELECT t.*, COUNT(ct.case_id) as case_count
-    FROM tags t
-    INNER JOIN case_tags ct ON t.id = ct.tag_id
+    FROM track_tags t
+    INNER JOIN track_case_tags ct ON t.id = ct.tag_id
     GROUP BY t.id
     ORDER BY case_count DESC
     LIMIT 20
@@ -50,10 +50,10 @@ $popularTags = $db->query("
 
 // Statistiken
 $stats = [
-    'total_cases' => $db->count('cases', 'public_visibility = 1'),
-    'ongoing_cases' => $db->count('cases', 'status = ? AND public_visibility = 1', ['ongoing']),
-    'total_parties' => $db->count('parties'),
-    'big_tech_count' => $db->count('parties', 'is_big_tech = 1')
+    'total_cases' => $db->count('track_cases', 'public_visibility = 1'),
+    'ongoing_cases' => $db->count('track_cases', 'status = ? AND public_visibility = 1', ['ongoing']),
+    'total_parties' => $db->count('track_parties'),
+    'big_tech_count' => $db->count('track_parties', 'is_big_tech = 1')
 ];
 
 /**
@@ -84,7 +84,7 @@ function parseParties($partiesString) {
 <div class="search-hero">
     <div class="container">
         <h1 class="title is-2 has-text-centered">
-            🏛️ Big Tech Verfahrenstracker
+            Haken Dran Verfahrenstracker
         </h1>
         <p class="subtitle has-text-centered" style="color: rgba(255,255,255,0.9); margin-bottom: 2rem;">
             Durchsuchbare Datenbank aller Gerichtsverfahren gegen große Tech-Konzerne<br>
@@ -198,7 +198,7 @@ function parseParties($partiesString) {
     <!-- Neueste Verfahren -->
     <section class="section" style="padding-top: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2 class="title is-4">⚖️ Neueste Verfahren</h2>
+            <h2 class="title is-4">Neueste Verfahren</h2>
             <a href="/cases.php" class="button is-primary">Alle Verfahren</a>
         </div>
 
@@ -245,7 +245,7 @@ function parseParties($partiesString) {
                         <?php if ($case['amount_disputed']): ?>
                         <div style="margin-top: 0.5rem;">
                             <span class="tag is-warning">
-                                💰 <?= Helpers::formatCurrency($case['amount_disputed'], $case['currency']) ?>
+                                <?= Helpers::formatCurrency($case['amount_disputed'], $case['currency']) ?>
                             </span>
                         </div>
                         <?php endif; ?>
@@ -259,7 +259,7 @@ function parseParties($partiesString) {
     <!-- Tag-Wolke -->
     <?php if (!empty($popularTags)): ?>
     <section class="section" style="padding-top: 0; padding-bottom: 3rem;">
-        <h2 class="title is-4">#️⃣ Themen & Tags</h2>
+        <h2 class="title is-4">Themen & Tags</h2>
 
         <div class="box">
             <div class="tag-cloud">

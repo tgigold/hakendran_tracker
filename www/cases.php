@@ -56,10 +56,10 @@ $totalCases = $result['total'];
 $totalPages = ceil($totalCases / $perPage);
 
 // Filter-Optionen laden
-$bigTechParties = $db->query("SELECT id, name FROM parties WHERE is_big_tech = 1 ORDER BY name");
-$countries = $db->query("SELECT DISTINCT country_code FROM cases WHERE country_code IS NOT NULL AND country_code != '' AND public_visibility = 1 ORDER BY country_code");
-$causes = $db->query("SELECT DISTINCT cause_of_action FROM cases WHERE cause_of_action IS NOT NULL AND cause_of_action != '' AND public_visibility = 1 ORDER BY cause_of_action");
-$tags = $db->query("SELECT DISTINCT t.id, t.name FROM tags t INNER JOIN case_tags ct ON t.id = ct.tag_id ORDER BY t.name");
+$bigTechParties = $db->query("SELECT id, name FROM track_parties WHERE is_big_tech = 1 ORDER BY name");
+$countries = $db->query("SELECT DISTINCT country_code FROM track_cases WHERE country_code IS NOT NULL AND country_code != '' AND public_visibility = 1 ORDER BY country_code");
+$causes = $db->query("SELECT DISTINCT cause_of_action FROM track_cases WHERE cause_of_action IS NOT NULL AND cause_of_action != '' AND public_visibility = 1 ORDER BY cause_of_action");
+$tags = $db->query("SELECT DISTINCT t.id, t.name FROM track_tags t INNER JOIN track_case_tags ct ON t.id = ct.tag_id ORDER BY t.name");
 
 /**
  * Cases laden mit Filter
@@ -95,7 +95,7 @@ function getCases($page, $perPage, $paginate = true) {
 
     // Party-Filter (Big Tech)
     if (!empty($party)) {
-        $where[] = "EXISTS (SELECT 1 FROM case_parties cp WHERE cp.case_id = c.id AND cp.party_id = ?)";
+        $where[] = "EXISTS (SELECT 1 FROM track_case_parties cp WHERE cp.case_id = c.id AND cp.party_id = ?)";
         $params[] = $party;
     }
 
@@ -108,10 +108,10 @@ function getCases($page, $perPage, $paginate = true) {
     // Tag-Filter
     if (!empty($tag)) {
         if (is_numeric($tag)) {
-            $where[] = "EXISTS (SELECT 1 FROM case_tags ct WHERE ct.case_id = c.id AND ct.tag_id = ?)";
+            $where[] = "EXISTS (SELECT 1 FROM track_case_tags ct WHERE ct.case_id = c.id AND ct.tag_id = ?)";
             $params[] = $tag;
         } else {
-            $where[] = "EXISTS (SELECT 1 FROM case_tags ct INNER JOIN tags t ON ct.tag_id = t.id WHERE ct.case_id = c.id AND t.name = ?)";
+            $where[] = "EXISTS (SELECT 1 FROM track_case_tags ct INNER JOIN track_tags t ON ct.tag_id = t.id WHERE ct.case_id = c.id AND t.name = ?)";
             $params[] = $tag;
         }
     }
@@ -142,7 +142,7 @@ function getCases($page, $perPage, $paginate = true) {
     };
 
     // Total Count
-    $totalSql = "SELECT COUNT(DISTINCT c.id) as total FROM cases c WHERE {$whereClause}";
+    $totalSql = "SELECT COUNT(DISTINCT c.id) as total FROM track_cases c WHERE {$whereClause}";
     $totalResult = $db->queryOne($totalSql, $params);
     $total = $totalResult['total'];
 
@@ -151,11 +151,11 @@ function getCases($page, $perPage, $paginate = true) {
         SELECT c.*,
                GROUP_CONCAT(DISTINCT CONCAT(p.name, ':', cp.role) SEPARATOR '|') as parties,
                GROUP_CONCAT(DISTINCT t.name SEPARATOR ', ') as tags
-        FROM cases c
-        LEFT JOIN case_parties cp ON c.id = cp.case_id
-        LEFT JOIN parties p ON cp.party_id = p.id
-        LEFT JOIN case_tags ct ON c.id = ct.case_id
-        LEFT JOIN tags t ON ct.tag_id = t.id
+        FROM track_cases c
+        LEFT JOIN track_case_parties cp ON c.id = cp.case_id
+        LEFT JOIN track_parties p ON cp.party_id = p.id
+        LEFT JOIN track_case_tags ct ON c.id = ct.case_id
+        LEFT JOIN track_tags t ON ct.tag_id = t.id
         WHERE {$whereClause}
         GROUP BY c.id
         ORDER BY {$orderBy}
@@ -203,7 +203,7 @@ function parseParties($partiesString) {
 <div class="container">
     <section class="section">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h1 class="title">⚖️ Alle Verfahren</h1>
+            <h1 class="title">Alle Verfahren</h1>
             <div class="buttons">
                 <a href="?<?= http_build_query(array_merge($_GET, ['export' => 'csv'])) ?>" class="button is-light">
                     <span class="icon">
@@ -436,7 +436,7 @@ function parseParties($partiesString) {
 
                             <div class="case-card-meta" style="margin-top: 0.75rem;">
                                 <?php if ($case['court_name']): ?>
-                                    🏛️ <?= Helpers::e(Helpers::truncate($case['court_name'], 50)) ?><br>
+                                    <?= Helpers::e(Helpers::truncate($case['court_name'], 50)) ?><br>
                                 <?php endif; ?>
                                 <?php if ($case['date_filed']): ?>
                                     📄 Eingereicht: <?= Helpers::formatDate($case['date_filed']) ?><br>
@@ -449,7 +449,7 @@ function parseParties($partiesString) {
                             <?php if ($case['amount_disputed']): ?>
                             <div style="margin-top: 0.75rem;">
                                 <span class="tag is-warning is-medium">
-                                    💰 <?= Helpers::formatCurrency($case['amount_disputed'], $case['currency']) ?>
+                                    <?= Helpers::formatCurrency($case['amount_disputed'], $case['currency']) ?>
                                 </span>
                             </div>
                             <?php endif; ?>

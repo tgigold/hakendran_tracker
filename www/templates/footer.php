@@ -4,7 +4,7 @@
     <footer class="footer">
         <div class="content has-text-centered">
             <p>
-                <strong>Hakendran Big Tech Verfahrenstracker</strong><br>
+                <strong>Haken Dran Verfahrenstracker</strong><br>
                 Erfassung und Verwaltung von Gerichtsverfahren gegen Tech-Konzerne
             </p>
             <p class="is-size-7 has-text-grey">

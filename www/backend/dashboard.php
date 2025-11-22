@@ -16,24 +16,24 @@ $db = Database::getInstance();
 
 // Statistiken
 $stats = [
-    'total_cases' => $db->count('cases'),
-    'public_cases' => $db->count('cases', 'public_visibility = 1'),
-    'draft_cases' => $db->count('cases', 'public_visibility = 0'),
-    'total_parties' => $db->count('parties'),
-    'big_tech' => $db->count('parties', 'is_big_tech = 1'),
-    'total_updates' => $db->count('case_updates'),
+    'total_cases' => $db->count('track_cases'),
+    'public_cases' => $db->count('track_cases', 'public_visibility = 1'),
+    'draft_cases' => $db->count('track_cases', 'public_visibility = 0'),
+    'total_parties' => $db->count('track_parties'),
+    'big_tech' => $db->count('track_parties', 'is_big_tech = 1'),
+    'total_updates' => $db->count('track_case_updates'),
 ];
 
 // Neueste Cases
 $latestCases = $db->query("
-    SELECT * FROM cases
+    SELECT * FROM track_cases
     ORDER BY created_at DESC
     LIMIT 5
 ");
 
 // Kürzlich aktualisierte Cases
 $recentlyUpdated = $db->query("
-    SELECT * FROM cases
+    SELECT * FROM track_cases
     ORDER BY updated_at DESC
     LIMIT 5
 ");
@@ -41,8 +41,8 @@ $recentlyUpdated = $db->query("
 // Audit Log (letzte Aktivitäten)
 $recentActivity = $db->query("
     SELECT al.*, u.display_name
-    FROM audit_log al
-    LEFT JOIN users u ON al.user_id = u.id
+    FROM track_audit_log al
+    LEFT JOIN track_users u ON al.user_id = u.id
     ORDER BY al.created_at DESC
     LIMIT 10
 ");
@@ -52,7 +52,7 @@ $recentActivity = $db->query("
     <section class="section">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
             <div>
-                <h1 class="title">🏠 Dashboard</h1>
+                <h1 class="title">Dashboard</h1>
                 <p class="subtitle">Willkommen, <?= Helpers::e($auth->getDisplayName()) ?>!</p>
             </div>
             <div class="buttons">
@@ -112,7 +112,7 @@ $recentActivity = $db->query("
             <!-- Neueste Cases -->
             <div class="column is-6">
                 <div class="box">
-                    <h2 class="title is-5">📝 Neueste Verfahren</h2>
+                    <h2 class="title is-5">Neueste Verfahren</h2>
                     <table class="table is-fullwidth is-hoverable">
                         <thead>
                             <tr>
@@ -145,7 +145,7 @@ $recentActivity = $db->query("
             <!-- Kürzlich aktualisiert -->
             <div class="column is-6">
                 <div class="box">
-                    <h2 class="title is-5">🔄 Kürzlich aktualisiert</h2>
+                    <h2 class="title is-5">Kürzlich aktualisiert</h2>
                     <table class="table is-fullwidth is-hoverable">
                         <thead>
                             <tr>
@@ -175,7 +175,7 @@ $recentActivity = $db->query("
 
         <!-- Aktivitätslog -->
         <div class="box">
-            <h2 class="title is-5">📊 Letzte Aktivitäten</h2>
+            <h2 class="title is-5">Letzte Aktivitäten</h2>
             <table class="table is-fullwidth is-hoverable">
                 <thead>
                     <tr>
@@ -200,7 +200,7 @@ $recentActivity = $db->query("
 
         <!-- Schnellzugriff -->
         <div class="box">
-            <h2 class="title is-5">⚡ Schnellzugriff</h2>
+            <h2 class="title is-5">Schnellzugriff</h2>
             <div class="buttons">
                 <a href="/backend/case-form.php" class="button is-primary">
                     <span class="icon">

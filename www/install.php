@@ -6,10 +6,9 @@
 
 // Sicherheitscheck: Installation nur einmal erlauben
 $configPath = dirname(__DIR__) . '/config.inc.php';
-$userAuthPath = dirname(__DIR__) . '/user.auth.php';
 
-if (file_exists($configPath) && file_exists($userAuthPath)) {
-    die('<h1>Installation bereits abgeschlossen</h1><p>Bitte löschen Sie install.php oder die config-Dateien für eine Neuinstallation.</p>');
+if (file_exists($configPath)) {
+    die('<h1>Installation bereits abgeschlossen</h1><p>Bitte löschen Sie install.php oder config.inc.php für eine Neuinstallation.</p>');
 }
 
 // Session starten für Formulardaten
@@ -98,9 +97,19 @@ if ($step === 4 && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ]);
 
-            $stmt = $pdo->prepare("INSERT INTO users (username, display_name, email, is_active) VALUES (?, ?, ?, 1)");
+            // @ Präfix hinzufügen falls nicht vorhanden
+            $username = $_SESSION['admin_username'];
+            if (substr($username, 0, 1) !== '@') {
+                $username = '@' . $username;
+            }
+
+            // Passwort hashen
+            $passwordHash = password_hash($_SESSION['admin_password'], PASSWORD_ARGON2ID);
+
+            $stmt = $pdo->prepare("INSERT INTO track_users (username, password_hash, display_name, email, is_active) VALUES (?, ?, ?, ?, 1)");
             $stmt->execute([
-                $_SESSION['admin_username'],
+                $username,
+                $passwordHash,
                 $_SESSION['admin_displayname'],
                 $_SESSION['admin_email']
             ]);
@@ -114,7 +123,7 @@ if ($step === 4 && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create
 }
 
 // ============================================
-// STEP 5: Config-Dateien erstellen
+// STEP 5: Config-Datei erstellen
 // ============================================
 if ($step === 5 && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_config'])) {
     try {
@@ -139,27 +148,6 @@ if ($step === 5 && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create
 
         if (file_put_contents($configPath, $configContent) === false) {
             throw new Exception("Konnte config.inc.php nicht erstellen!");
-        }
-
-        // user.auth.php erstellen
-        $passwordHash = password_hash($_SESSION['admin_password'], PASSWORD_ARGON2ID);
-        $userAuthContent = "<?php\n";
-        $userAuthContent .= "/**\n";
-        $userAuthContent .= " * Hakendran Tracker - Benutzer-Authentifizierung\n";
-        $userAuthContent .= " * WICHTIG: Diese Datei sollte außerhalb des Webroots liegen!\n";
-        $userAuthContent .= " * Erstellt: " . date('Y-m-d H:i:s') . "\n";
-        $userAuthContent .= " */\n\n";
-        $userAuthContent .= "return [\n";
-        $userAuthContent .= "    '{$_SESSION['admin_username']}' => [\n";
-        $userAuthContent .= "        'password' => '{$passwordHash}',\n";
-        $userAuthContent .= "        'display_name' => '{$_SESSION['admin_displayname']}',\n";
-        $userAuthContent .= "        'email' => '{$_SESSION['admin_email']}',\n";
-        $userAuthContent .= "        'is_active' => true\n";
-        $userAuthContent .= "    ]\n";
-        $userAuthContent .= "];\n";
-
-        if (file_put_contents($userAuthPath, $userAuthContent) === false) {
-            throw new Exception("Konnte user.auth.php nicht erstellen!");
         }
 
         // Session bereinigen
@@ -349,8 +337,8 @@ if ($step === 5 && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create
 </head>
 <body>
     <div class="container">
-        <h1>🏛️ Gerichtstracker</h1>
-        <p class="subtitle">Big Tech Verfahrenstracker Installation</p>
+        <h1>Haken Dran Verfahrenstracker</h1>
+        <p class="subtitle">Installation</p>
 
         <?php if (!empty($errors)): ?>
             <div class="error">
@@ -441,7 +429,7 @@ if ($step === 5 && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create
                 <div class="form-group">
                     <label>Benutzername</label>
                     <input type="text" name="admin_username" value="<?= $_SESSION['admin_username'] ?? 'admin' ?>" required>
-                    <p class="help-text">Nur Buchstaben, Zahlen und Unterstrich</p>
+                    <p class="help-text">Wird automatisch mit @ Präfix gespeichert (z.B. @admin)</p>
                 </div>
 
                 <div class="form-group">
@@ -466,12 +454,12 @@ if ($step === 5 && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create
         <?php elseif ($step === 5): ?>
             <h2>Schritt 4: Konfiguration speichern</h2>
             <div class="info">
-                <p><strong>Wichtig:</strong> Die Konfigurationsdateien werden erstellt:</p>
+                <p><strong>Wichtig:</strong> Die Konfigurationsdatei wird erstellt:</p>
                 <ul style="margin-left: 20px; margin-top: 10px;">
-                    <li><code>config.inc.php</code></li>
-                    <li><code>user.auth.php</code></li>
+                    <li><code>config.inc.php</code> - Datenbank-Verbindung und Einstellungen</li>
                 </ul>
-                <p style="margin-top: 10px;">⚠️ <strong>Sicherheitshinweis:</strong> Verschieben Sie diese Dateien nach der Installation außerhalb des Webroots!</p>
+                <p style="margin-top: 10px;">⚠️ <strong>Sicherheitshinweis:</strong> Verschieben Sie diese Datei nach der Installation außerhalb des Webroots!</p>
+                <p style="margin-top: 10px;">Benutzer werden in der MySQL-Datenbank (Tabelle: track_users) gespeichert.</p>
             </div>
             <form method="POST">
                 <input type="hidden" name="step" value="5">
@@ -491,10 +479,11 @@ if ($step === 5 && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create
                 <div class="info" style="text-align: left;">
                     <p><strong>Nächste Schritte:</strong></p>
                     <ol style="margin-left: 20px; margin-top: 10px;">
-                        <li>Verschieben Sie <code>config.inc.php</code> und <code>user.auth.php</code> außerhalb von <code>/www/</code></li>
+                        <li>Verschieben Sie <code>config.inc.php</code> außerhalb von <code>/www/</code></li>
                         <li>Löschen Sie <code>install.php</code> aus Sicherheitsgründen</li>
                         <li>Laden Sie die benötigten CSS/JS-Bibliotheken in <code>/www/assets/vendor/</code> herunter</li>
                         <li>Lesen Sie <code>www/assets/vendor/VENDOR_INFO.txt</code> für Details</li>
+                        <li>Weitere Benutzer können über die MySQL-Datenbank (Tabelle: <code>track_users</code>) hinzugefügt werden</li>
                     </ol>
                 </div>
 

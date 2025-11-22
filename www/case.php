@@ -25,9 +25,9 @@ $case = $db->queryOne("
     SELECT c.*,
            u_created.display_name as created_by_name,
            u_updated.display_name as updated_by_name
-    FROM cases c
-    LEFT JOIN users u_created ON c.created_by = u_created.id
-    LEFT JOIN users u_updated ON c.updated_by = u_updated.id
+    FROM track_cases c
+    LEFT JOIN track_users u_created ON c.created_by = u_created.id
+    LEFT JOIN track_users u_updated ON c.updated_by = u_updated.id
     WHERE c.id = ?
 ", [$caseId]);
 
@@ -45,8 +45,8 @@ if (!$case['public_visibility'] && !$auth->isLoggedIn()) {
 // Beteiligte laden
 $parties = $db->query("
     SELECT cp.*, p.name, p.type, p.is_big_tech, p.website
-    FROM case_parties cp
-    INNER JOIN parties p ON cp.party_id = p.id
+    FROM track_case_parties cp
+    INNER JOIN track_parties p ON cp.party_id = p.id
     WHERE cp.case_id = ?
     ORDER BY cp.role, p.name
 ", [$caseId]);
@@ -65,8 +65,8 @@ foreach ($parties as $party) {
 // Updates/Timeline laden
 $updates = $db->query("
     SELECT u.*, us.display_name as created_by_name
-    FROM case_updates u
-    LEFT JOIN users us ON u.created_by = us.id
+    FROM track_case_updates u
+    LEFT JOIN track_users us ON u.created_by = us.id
     WHERE u.case_id = ?
     ORDER BY u.update_date DESC, u.created_at DESC
 ", [$caseId]);
@@ -74,8 +74,8 @@ $updates = $db->query("
 // Rechtsgrundlagen laden
 $legalBases = $db->query("
     SELECT lb.*
-    FROM legal_bases lb
-    INNER JOIN case_legal_bases clb ON lb.id = clb.legal_basis_id
+    FROM track_legal_bases lb
+    INNER JOIN track_case_legal_bases clb ON lb.id = clb.legal_basis_id
     WHERE clb.case_id = ?
     ORDER BY lb.category, lb.code
 ", [$caseId]);
@@ -83,15 +83,15 @@ $legalBases = $db->query("
 // Tags laden
 $tags = $db->query("
     SELECT t.*
-    FROM tags t
-    INNER JOIN case_tags ct ON t.id = ct.tag_id
+    FROM track_tags t
+    INNER JOIN track_case_tags ct ON t.id = ct.tag_id
     WHERE ct.case_id = ?
     ORDER BY t.name
 ", [$caseId]);
 
 // Quellen laden
 $sources = $db->query("
-    SELECT * FROM sources
+    SELECT * FROM track_sources
     WHERE case_id = ?
     ORDER BY date_published DESC, created_at DESC
 ", [$caseId]);
@@ -235,7 +235,7 @@ require_once __DIR__ . '/templates/header.php';
                 <!-- Beteiligte -->
                 <?php if (!empty($parties)): ?>
                 <div class="box">
-                    <h2 class="title is-5">👥 Beteiligte</h2>
+                    <h2 class="title is-5">Beteiligte</h2>
 
                     <?php foreach ($groupedParties as $role => $roleParties):
                         if (empty($roleParties)) continue;
@@ -340,7 +340,7 @@ require_once __DIR__ . '/templates/header.php';
                 <!-- Rechtsgrundlagen -->
                 <?php if (!empty($legalBases)): ?>
                 <div class="box">
-                    <h2 class="title is-6">⚖️ Rechtsgrundlagen</h2>
+                    <h2 class="title is-6">Rechtsgrundlagen</h2>
                     <?php
                     $grouped = [];
                     foreach ($legalBases as $lb) {
@@ -365,7 +365,7 @@ require_once __DIR__ . '/templates/header.php';
                 <!-- Tags -->
                 <?php if (!empty($tags)): ?>
                 <div class="box">
-                    <h2 class="title is-6">#️⃣ Tags</h2>
+                    <h2 class="title is-6">Tags</h2>
                     <div class="tag-cloud">
                         <?php foreach ($tags as $tag): ?>
                             <a href="/cases.php?tag=<?= urlencode($tag['name']) ?>" class="tag is-link">
