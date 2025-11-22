@@ -7,10 +7,10 @@
    CSS-Variablen
    ============================================ */
 :root {
-    /* Light Theme - inspiriert von linktr.ee/hakendran */
-    --primary-color: #8B5CF6;
-    --primary-dark: #7C3AED;
-    --secondary-color: #EC4899;
+    /* Light Theme - Haken Dran Farben */
+    --primary-color: #125882;
+    --primary-dark: #0d4160;
+    --secondary-color: #00b595;
     --background: #FFFFFF;
     --background-secondary: #F9FAFB;
     --text-primary: #1F2937;
@@ -20,9 +20,9 @@
 }
 
 [data-theme="dark"] {
-    --primary-color: #A78BFA;
-    --primary-dark: #8B5CF6;
-    --secondary-color: #F472B6;
+    --primary-color: #1a6a9e;
+    --primary-dark: #125882;
+    --secondary-color: #00d1a7;
     --background: #1F2937;
     --background-secondary: #111827;
     --text-primary: #F9FAFB;
@@ -245,21 +245,36 @@ a:hover {
    Search Box
    ============================================ */
 .search-hero {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    padding: 3rem 1.5rem;
+    background-color: var(--background-secondary);
+    padding: 2.5rem 0;
     margin-bottom: 2rem;
-    border-radius: 8px;
-    color: white;
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.search-hero .container {
+    max-width: 960px;
 }
 
 .search-hero h1 {
-    color: white;
-    margin-bottom: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-size: 2rem;
+}
+
+.search-hero .subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .search-hero .control.has-icons-left input {
     padding-left: 3rem;
     font-size: 1.1rem;
+    border: 2px solid var(--border-color);
+}
+
+.search-hero .control.has-icons-left input:focus {
+    border-color: var(--primary-color);
 }
 
 /* ============================================

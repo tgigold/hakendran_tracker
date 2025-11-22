@@ -12,12 +12,12 @@ $db = Database::getInstance();
 
 // Übersichts-Statistiken
 $stats = [
-    'total_cases' => $db->count('cases', 'public_visibility = 1'),
-    'ongoing' => $db->count('cases', 'status = ? AND public_visibility = 1', ['ongoing']),
-    'settled' => $db->count('cases', 'status = ? AND public_visibility = 1', ['settled']),
-    'dismissed' => $db->count('cases', 'status = ? AND public_visibility = 1', ['dismissed']),
-    'total_parties' => $db->count('parties'),
-    'big_tech' => $db->count('parties', 'is_big_tech = 1'),
+    'total_cases' => $db->count('track_cases', 'public_visibility = 1'),
+    'ongoing' => $db->count('track_cases', 'status = ? AND public_visibility = 1', ['ongoing']),
+    'settled' => $db->count('track_cases', 'status = ? AND public_visibility = 1', ['settled']),
+    'dismissed' => $db->count('track_cases', 'status = ? AND public_visibility = 1', ['dismissed']),
+    'total_parties' => $db->count('track_parties'),
+    'big_tech' => $db->count('track_parties', 'is_big_tech = 1'),
 ];
 
 // Streitwert-Summen
@@ -26,14 +26,14 @@ $amountStats = $db->queryOne("
         SUM(amount_disputed) as total_disputed,
         SUM(penalty_paid) as total_penalties,
         AVG(amount_disputed) as avg_disputed
-    FROM cases
+    FROM track_cases
     WHERE public_visibility = 1
 ");
 
 // Cases pro Status
 $casesByStatus = $db->query("
     SELECT status, COUNT(*) as count
-    FROM cases
+    FROM track_cases
     WHERE public_visibility = 1
     GROUP BY status
     ORDER BY count DESC
@@ -42,7 +42,7 @@ $casesByStatus = $db->query("
 // Cases pro Land (Top 10)
 $casesByCountry = $db->query("
     SELECT country_code, COUNT(*) as count
-    FROM cases
+    FROM track_cases
     WHERE public_visibility = 1 AND country_code IS NOT NULL
     GROUP BY country_code
     ORDER BY count DESC
@@ -52,7 +52,7 @@ $casesByCountry = $db->query("
 // Cases pro Jahr
 $casesByYear = $db->query("
     SELECT YEAR(date_filed) as year, COUNT(*) as count
-    FROM cases
+    FROM track_cases
     WHERE public_visibility = 1 AND date_filed IS NOT NULL
     GROUP BY YEAR(date_filed)
     ORDER BY year ASC
@@ -61,8 +61,8 @@ $casesByYear = $db->query("
 // Top Big Tech Unternehmen (nach Anzahl Verfahren)
 $topCompanies = $db->query("
     SELECT p.name, COUNT(DISTINCT cp.case_id) as case_count
-    FROM parties p
-    INNER JOIN case_parties cp ON p.id = cp.party_id
+    FROM track_parties p
+    INNER JOIN track_case_parties cp ON p.id = cp.party_id
     WHERE p.is_big_tech = 1
     GROUP BY p.id
     ORDER BY case_count DESC
@@ -72,7 +72,7 @@ $topCompanies = $db->query("
 // Top Rechtsgebiete
 $topCauses = $db->query("
     SELECT cause_of_action, COUNT(*) as count
-    FROM cases
+    FROM track_cases
     WHERE public_visibility = 1 AND cause_of_action IS NOT NULL AND cause_of_action != ''
     GROUP BY cause_of_action
     ORDER BY count DESC
@@ -82,7 +82,7 @@ $topCauses = $db->query("
 // Verfahrensarten
 $actionTypes = $db->query("
     SELECT legal_action_type, COUNT(*) as count
-    FROM cases
+    FROM track_cases
     WHERE public_visibility = 1
     GROUP BY legal_action_type
     ORDER BY count DESC
@@ -91,7 +91,7 @@ $actionTypes = $db->query("
 // Höchste Streitwerte
 $topDisputes = $db->query("
     SELECT title, amount_disputed, currency, country_code, status
-    FROM cases
+    FROM track_cases
     WHERE public_visibility = 1 AND amount_disputed > 0
     ORDER BY amount_disputed DESC
     LIMIT 5
@@ -100,7 +100,7 @@ $topDisputes = $db->query("
 
 <div class="container">
     <section class="section">
-        <h1 class="title">📊 Statistiken & Analysen</h1>
+        <h1 class="title">Statistiken & Analysen</h1>
         <p class="subtitle">Auswertungen aller erfassten Gerichtsverfahren gegen Big Tech</p>
 
         <!-- Übersichts-Cards -->

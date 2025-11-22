@@ -1,17 +1,19 @@
 -- ============================================
 -- Hakendran Big Tech Verfahrenstracker
--- Datenbank-Schema
+-- Datenbank-Schema mit track_ Präfix
+-- Version 2.0 - MySQL-basierte Benutzerverwaltung
 -- ============================================
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================
--- Tabelle: users (für Audit-Logging)
+-- Tabelle: track_users (Benutzerverwaltung & Audit-Logging)
 -- ============================================
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS track_users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
     display_name VARCHAR(200),
     email VARCHAR(200),
     is_active BOOLEAN DEFAULT TRUE,
@@ -22,9 +24,9 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: parties (Beteiligte)
+-- Tabelle: track_parties (Beteiligte)
 -- ============================================
-CREATE TABLE IF NOT EXISTS parties (
+CREATE TABLE IF NOT EXISTS track_parties (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(300) NOT NULL,
     type ENUM('corporation', 'government', 'authority', 'individual', 'ngo', 'other') DEFAULT 'corporation',
@@ -40,9 +42,9 @@ CREATE TABLE IF NOT EXISTS parties (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: cases (Haupttabelle)
+-- Tabelle: track_cases (Haupttabelle)
 -- ============================================
-CREATE TABLE IF NOT EXISTS cases (
+CREATE TABLE IF NOT EXISTS track_cases (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(500) NOT NULL,
     case_number VARCHAR(200),
@@ -75,8 +77,8 @@ CREATE TABLE IF NOT EXISTS cases (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (created_by) REFERENCES track_users(id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES track_users(id) ON DELETE SET NULL,
 
     INDEX idx_status (status),
     INDEX idx_country (country_code),
@@ -87,26 +89,26 @@ CREATE TABLE IF NOT EXISTS cases (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: case_parties (Verknüpfung)
+-- Tabelle: track_case_parties (Verknüpfung)
 -- ============================================
-CREATE TABLE IF NOT EXISTS case_parties (
+CREATE TABLE IF NOT EXISTS track_case_parties (
     id INT PRIMARY KEY AUTO_INCREMENT,
     case_id INT NOT NULL,
     party_id INT NOT NULL,
     role ENUM('plaintiff', 'defendant', 'intervenor', 'amicus') NOT NULL,
     law_firm VARCHAR(300),
 
-    FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
-    FOREIGN KEY (party_id) REFERENCES parties(id) ON DELETE CASCADE,
+    FOREIGN KEY (case_id) REFERENCES track_cases(id) ON DELETE CASCADE,
+    FOREIGN KEY (party_id) REFERENCES track_parties(id) ON DELETE CASCADE,
     UNIQUE KEY unique_case_party (case_id, party_id, role),
     INDEX idx_case (case_id),
     INDEX idx_party (party_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: case_updates (Timeline)
+-- Tabelle: track_case_updates (Timeline)
 -- ============================================
-CREATE TABLE IF NOT EXISTS case_updates (
+CREATE TABLE IF NOT EXISTS track_case_updates (
     id INT PRIMARY KEY AUTO_INCREMENT,
     case_id INT NOT NULL,
     update_date DATE NOT NULL,
@@ -118,17 +120,17 @@ CREATE TABLE IF NOT EXISTS case_updates (
     created_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (case_id) REFERENCES track_cases(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES track_users(id) ON DELETE SET NULL,
     INDEX idx_case (case_id),
     INDEX idx_date (update_date),
     INDEX idx_created_by (created_by)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: legal_bases (Rechtsgrundlagen)
+-- Tabelle: track_legal_bases (Rechtsgrundlagen)
 -- ============================================
-CREATE TABLE IF NOT EXISTS legal_bases (
+CREATE TABLE IF NOT EXISTS track_legal_bases (
     id INT PRIMARY KEY AUTO_INCREMENT,
     code VARCHAR(100) NOT NULL,
     category VARCHAR(50),
@@ -139,21 +141,21 @@ CREATE TABLE IF NOT EXISTS legal_bases (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: case_legal_bases (Verknüpfung)
+-- Tabelle: track_case_legal_bases (Verknüpfung)
 -- ============================================
-CREATE TABLE IF NOT EXISTS case_legal_bases (
+CREATE TABLE IF NOT EXISTS track_case_legal_bases (
     case_id INT NOT NULL,
     legal_basis_id INT NOT NULL,
 
     PRIMARY KEY (case_id, legal_basis_id),
-    FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
-    FOREIGN KEY (legal_basis_id) REFERENCES legal_bases(id) ON DELETE CASCADE
+    FOREIGN KEY (case_id) REFERENCES track_cases(id) ON DELETE CASCADE,
+    FOREIGN KEY (legal_basis_id) REFERENCES track_legal_bases(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: sources (Externe Quellen)
+-- Tabelle: track_sources (Externe Quellen)
 -- ============================================
-CREATE TABLE IF NOT EXISTS sources (
+CREATE TABLE IF NOT EXISTS track_sources (
     id INT PRIMARY KEY AUTO_INCREMENT,
     case_id INT NOT NULL,
     url TEXT NOT NULL,
@@ -162,14 +164,14 @@ CREATE TABLE IF NOT EXISTS sources (
     date_published DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
+    FOREIGN KEY (case_id) REFERENCES track_cases(id) ON DELETE CASCADE,
     INDEX idx_case (case_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: tags (Flexible Kategorisierung)
+-- Tabelle: track_tags (Flexible Kategorisierung)
 -- ============================================
-CREATE TABLE IF NOT EXISTS tags (
+CREATE TABLE IF NOT EXISTS track_tags (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     category VARCHAR(50),
@@ -178,19 +180,19 @@ CREATE TABLE IF NOT EXISTS tags (
     INDEX idx_category (category)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS case_tags (
+CREATE TABLE IF NOT EXISTS track_case_tags (
     case_id INT NOT NULL,
     tag_id INT NOT NULL,
 
     PRIMARY KEY (case_id, tag_id),
-    FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+    FOREIGN KEY (case_id) REFERENCES track_cases(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES track_tags(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- Tabelle: audit_log (System-Logging)
+-- Tabelle: track_audit_log (System-Logging)
 -- ============================================
-CREATE TABLE IF NOT EXISTS audit_log (
+CREATE TABLE IF NOT EXISTS track_audit_log (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     action VARCHAR(100) NOT NULL,
@@ -201,7 +203,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
     user_agent VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES track_users(id) ON DELETE SET NULL,
     INDEX idx_user (user_id),
     INDEX idx_action (action),
     INDEX idx_entity (entity_type, entity_id),
@@ -211,7 +213,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
 -- ============================================
 -- Basis-Daten für Rechtsgrundlagen
 -- ============================================
-INSERT INTO legal_bases (code, category, description) VALUES
+INSERT INTO track_legal_bases (code, category, description) VALUES
 ('DSGVO Art. 6', 'Datenschutz', 'Rechtmäßigkeit der Verarbeitung'),
 ('DSGVO Art. 9', 'Datenschutz', 'Verarbeitung besonderer Kategorien personenbezogener Daten'),
 ('DSGVO Art. 17', 'Datenschutz', 'Recht auf Löschung'),
@@ -232,7 +234,7 @@ INSERT INTO legal_bases (code, category, description) VALUES
 -- ============================================
 -- Basis-Tags
 -- ============================================
-INSERT INTO tags (name, category) VALUES
+INSERT INTO track_tags (name, category) VALUES
 ('Datenschutz', 'Rechtsgebiet'),
 ('Kartellrecht', 'Rechtsgebiet'),
 ('Wettbewerbsrecht', 'Rechtsgebiet'),

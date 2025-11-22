@@ -1,23 +1,15 @@
 <?php
 /**
  * Auth Class
- * Session-basierte Authentifizierung mit user.auth.php
+ * Session-basierte Authentifizierung mit MySQL
+ * Version 2.0 - MySQL-basierte Benutzerverwaltung
  */
 
 class Auth {
     private $db;
-    private $users;
 
     public function __construct() {
         $this->db = Database::getInstance();
-
-        // user.auth.php laden
-        $userAuthPath = dirname(__DIR__, 2) . '/user.auth.php';
-        if (!file_exists($userAuthPath)) {
-            die('Benutzer-Authentifizierungsdatei nicht gefunden. Bitte führen Sie install.php aus.');
-        }
-
-        $this->users = require $userAuthPath;
 
         // Session starten falls noch nicht aktiv
         if (session_status() === PHP_SESSION_NONE) {
@@ -29,12 +21,20 @@ class Auth {
      * Benutzer einloggen
      */
     public function login($username, $password) {
-        // Prüfen ob User existiert
-        if (!isset($this->users[$username])) {
-            return false;
+        // Benutzername sollte mit @ beginnen
+        if (substr($username, 0, 1) !== '@') {
+            $username = '@' . $username;
         }
 
-        $user = $this->users[$username];
+        // User aus Datenbank laden
+        $user = $this->db->queryOne(
+            "SELECT id, username, password_hash, display_name, email, is_active FROM track_users WHERE username = ?",
+            [$username]
+        );
+
+        if (!$user) {
+            return false;
+        }
 
         // Prüfen ob User aktiv ist
         if (!$user['is_active']) {
@@ -42,30 +42,20 @@ class Auth {
         }
 
         // Passwort verifizieren
-        if (!password_verify($password, $user['password'])) {
-            return false;
-        }
-
-        // User-Daten aus Datenbank laden
-        $dbUser = $this->db->queryOne(
-            "SELECT id, username, display_name, email FROM users WHERE username = ? AND is_active = 1",
-            [$username]
-        );
-
-        if (!$dbUser) {
+        if (!password_verify($password, $user['password_hash'])) {
             return false;
         }
 
         // Session setzen
-        $_SESSION['user_id'] = $dbUser['id'];
-        $_SESSION['username'] = $dbUser['username'];
-        $_SESSION['display_name'] = $dbUser['display_name'];
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['display_name'] = $user['display_name'];
         $_SESSION['logged_in'] = true;
 
         // Last Login aktualisieren
         $this->db->execute(
-            "UPDATE users SET last_login = NOW() WHERE id = ?",
-            [$dbUser['id']]
+            "UPDATE track_users SET last_login = NOW() WHERE id = ?",
+            [$user['id']]
         );
 
         // Audit Log
@@ -147,7 +137,7 @@ class Auth {
         $ipAddress = $_SERVER['REMOTE_ADDR'] ?? null;
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
 
-        $sql = "INSERT INTO audit_log (user_id, action, entity_type, entity_id, details, ip_address, user_agent)
+        $sql = "INSERT INTO track_audit_log (user_id, action, entity_type, entity_id, details, ip_address, user_agent)
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         return $this->db->insert($sql, [
@@ -179,9 +169,26 @@ class Auth {
     }
 
     /**
-     * Passwort-Hash für user.auth.php generieren
+     * Passwort-Hash generieren
      */
     public static function hashPassword($password) {
         return password_hash($password, PASSWORD_ARGON2ID);
+    }
+
+    /**
+     * Neuen Benutzer erstellen
+     */
+    public function createUser($username, $password, $displayName, $email = '') {
+        // @ Präfix hinzufügen
+        if (substr($username, 0, 1) !== '@') {
+            $username = '@' . $username;
+        }
+
+        $passwordHash = self::hashPassword($password);
+
+        $sql = "INSERT INTO track_users (username, password_hash, display_name, email, is_active)
+                VALUES (?, ?, ?, ?, 1)";
+
+        return $this->db->insert($sql, [$username, $passwordHash, $displayName, $email]);
     }
 }

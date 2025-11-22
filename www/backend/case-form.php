@@ -23,7 +23,7 @@ $isEdit = $caseId > 0;
 // Case laden (Edit-Mode)
 $case = null;
 if ($isEdit) {
-    $case = $db->queryOne("SELECT * FROM cases WHERE id = ?", [$caseId]);
+    $case = $db->queryOne("SELECT * FROM track_cases WHERE id = ?", [$caseId]);
     if (!$case) {
         Helpers::redirect('/backend/dashboard.php');
     }
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $params[] = $caseId;
 
-                $sql = "UPDATE cases SET " . implode(', ', $setClauses) . " WHERE id = ?";
+                $sql = "UPDATE track_cases SET " . implode(', ', $setClauses) . " WHERE id = ?";
                 $db->execute($sql, $params);
 
                 $auth->logAction('case_updated', 'case', $caseId, "Updated case: {$title}");
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $fields = array_keys($caseData);
                 $placeholders = array_fill(0, count($fields), '?');
-                $sql = "INSERT INTO cases (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
+                $sql = "INSERT INTO track_cases (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
 
                 $caseId = $db->insert($sql, array_values($caseData));
 
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $isEdit = true;
 
                 // Reload case data
-                $case = $db->queryOne("SELECT * FROM cases WHERE id = ?", [$caseId]);
+                $case = $db->queryOne("SELECT * FROM track_cases WHERE id = ?", [$caseId]);
             }
 
             // Beteiligte aktualisieren (vereinfacht - nur neue hinzufügen)
@@ -134,15 +134,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Parties für Dropdown laden
-$allParties = $db->query("SELECT id, name, is_big_tech FROM parties ORDER BY name");
+$allParties = $db->query("SELECT id, name, is_big_tech FROM track_parties ORDER BY name");
 
 // Aktuelle Beteiligte laden (Edit-Mode)
 $currentParties = [];
 if ($isEdit) {
     $currentParties = $db->query("
         SELECT cp.*, p.name
-        FROM case_parties cp
-        INNER JOIN parties p ON cp.party_id = p.id
+        FROM track_case_parties cp
+        INNER JOIN track_parties p ON cp.party_id = p.id
         WHERE cp.case_id = ?
         ORDER BY cp.role, p.name
     ", [$caseId]);
@@ -272,7 +272,7 @@ $csrfToken = $auth->generateCsrfToken();
 
             <!-- Section 2: Beteiligte -->
             <div class="box">
-                <h2 class="title is-5">👥 Beteiligte</h2>
+                <h2 class="title is-5">Beteiligte</h2>
 
                 <?php if ($isEdit && !empty($currentParties)): ?>
                     <table class="table is-fullwidth is-striped">
@@ -336,7 +336,7 @@ $csrfToken = $auth->generateCsrfToken();
 
             <!-- Section 3: Zuständigkeit -->
             <div class="box">
-                <h2 class="title is-5">🏛️ Zuständigkeit</h2>
+                <h2 class="title is-5">Zuständigkeit</h2>
 
                 <div class="columns">
                     <div class="column is-4">

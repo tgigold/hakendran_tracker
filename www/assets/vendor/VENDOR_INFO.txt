@@ -8,8 +8,8 @@ Dieser Ordner (/www/assets/vendor/) muss folgende externe Bibliotheken enthalten
 1. Bulma CSS Framework
 --------------------------------------------------------------------------------
 Dateiname: bulma.min.css
-Download:  https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css
-Version:   0.9.4 oder höher
+Download:  https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css
+Version:   1.0.4 oder höher
 Lizenz:    MIT
 
 Beschreibung:
@@ -20,8 +20,8 @@ Modernes CSS-Framework für responsive Layouts und UI-Komponenten.
 2. Chart.js
 --------------------------------------------------------------------------------
 Dateiname: chart.min.js
-Download:  https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js
-Version:   4.4.0 oder höher
+Download:  https://cdn.jsdelivr.net/npm/chart.js@4.51.0/dist/chart.umd.min.js
+Version:   4.51.0 oder höher
 Lizenz:    MIT
 
 Beschreibung:

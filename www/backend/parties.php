@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_party'])) {
     if (empty($errors)) {
         try {
             $db->insert(
-                "INSERT INTO parties (name, type, country_code, is_big_tech, website) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO track_parties (name, type, country_code, is_big_tech, website) VALUES (?, ?, ?, ?, ?)",
                 [$name, $type, $country, $isBigTech, $website]
             );
             $success = "Beteiligter '{$name}' wurde erfolgreich erstellt.";
@@ -45,16 +45,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_party'])) {
 // Party löschen
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $deleteId = intval($_GET['delete']);
-    $party = $db->queryOne("SELECT name FROM parties WHERE id = ?", [$deleteId]);
+    $party = $db->queryOne("SELECT name FROM track_parties WHERE id = ?", [$deleteId]);
 
     if ($party) {
         // Prüfen ob in Cases verwendet
-        $usageCount = $db->count('case_parties', 'party_id = ?', [$deleteId]);
+        $usageCount = $db->count('track_case_parties', 'party_id = ?', [$deleteId]);
 
         if ($usageCount > 0) {
             $errors[] = "Beteiligter kann nicht gelöscht werden, da er in {$usageCount} Verfahren verwendet wird.";
         } else {
-            $db->execute("DELETE FROM parties WHERE id = ?", [$deleteId]);
+            $db->execute("DELETE FROM track_parties WHERE id = ?", [$deleteId]);
             $success = "Beteiligter '{$party['name']}' wurde gelöscht.";
             $auth->logAction('party_deleted', 'party', $deleteId, "Deleted party: {$party['name']}");
         }
@@ -82,8 +82,8 @@ $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 $parties = $db->query("
     SELECT p.*,
            COUNT(DISTINCT cp.case_id) as case_count
-    FROM parties p
-    LEFT JOIN case_parties cp ON p.id = cp.party_id
+    FROM track_parties p
+    LEFT JOIN track_case_parties cp ON p.id = cp.party_id
     {$whereClause}
     GROUP BY p.id
     ORDER BY p.name
@@ -100,7 +100,7 @@ $parties = $db->query("
         </nav>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h1 class="title">👥 Beteiligte verwalten</h1>
+            <h1 class="title">Beteiligte verwalten</h1>
             <button class="button is-primary" onclick="document.getElementById('createModal').classList.add('is-active')">
                 <span class="icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
