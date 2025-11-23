@@ -1,12 +1,3 @@
-<?php
-/**
- * Über uns / About
- */
-
-$pageTitle = 'Über uns';
-require_once __DIR__ . '/templates/header.php';
-?>
-
 <div class="container">
     <section class="section">
         <h1 class="title">Über Haken Dran Verfahrenstracker</h1>
@@ -62,5 +53,3 @@ require_once __DIR__ . '/templates/header.php';
         </div>
     </section>
 </div>
-
-<?php require_once __DIR__ . '/templates/footer.php'; ?>

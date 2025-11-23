@@ -1,12 +1,3 @@
-<?php
-/**
- * Datenschutzerklärung
- */
-
-$pageTitle = 'Datenschutzerklärung';
-require_once __DIR__ . '/templates/header.php';
-?>
-
 <div class="container">
     <section class="section">
         <h1 class="title">Datenschutzerklärung</h1>
@@ -25,7 +16,7 @@ require_once __DIR__ . '/templates/header.php';
             <h4>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</h4>
             <p>
                 Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten
-                können Sie dem <a href="/impressum.php">Impressum</a> entnehmen.
+                können Sie dem <a href="/page.php?p=impressum">Impressum</a> entnehmen.
             </p>
 
             <h4>Wie erfassen wir Ihre Daten?</h4>
@@ -168,5 +159,3 @@ require_once __DIR__ . '/templates/header.php';
         </div>
     </section>
 </div>
-
-<?php require_once __DIR__ . '/templates/footer.php'; ?>
