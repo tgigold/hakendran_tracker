@@ -23,32 +23,6 @@ $sort = $_GET['sort'] ?? 'date_filed_desc';
 $page = max(1, intval($_GET['page'] ?? 1));
 $perPage = max(10, min(100, intval($_GET['per_page'] ?? 20)));
 
-// Export-Funktion
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $exportData = getCases(1, 10000, false); // Alle Daten für Export
-    $csvData = [];
-
-    foreach ($exportData['cases'] as $case) {
-        $parties = parseParties($case['parties']);
-        $csvData[] = [
-            'ID' => $case['id'],
-            'Titel' => $case['title'],
-            'Aktenzeichen' => $case['case_number'],
-            'Kläger' => implode(', ', $parties['plaintiffs']),
-            'Beklagter' => implode(', ', $parties['defendants']),
-            'Status' => Helpers::statusBadge($case['status']),
-            'Land' => Helpers::countryName($case['country_code']),
-            'Gericht' => $case['court_name'],
-            'Rechtsgebiet' => Helpers::legalActionTypeLabel($case['legal_action_type']),
-            'Datum eingereicht' => Helpers::formatDate($case['date_filed']),
-            'Nächste Anhörung' => Helpers::formatDate($case['next_hearing_date']),
-            'Streitwert' => $case['amount_disputed'] ? Helpers::formatCurrency($case['amount_disputed'], $case['currency']) : '',
-        ];
-    }
-
-    Helpers::generateCsv($csvData, 'verfahren_' . date('Y-m-d') . '.csv');
-}
-
 // Daten laden
 $result = getCases($page, $perPage);
 $cases = $result['cases'];
@@ -202,21 +176,7 @@ function parseParties($partiesString) {
 
 <div class="container">
     <section class="section">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h1 class="title">Alle Verfahren</h1>
-            <div class="buttons">
-                <a href="?<?= http_build_query(array_merge($_GET, ['export' => 'csv'])) ?>" class="button is-light">
-                    <span class="icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                    </span>
-                    <span>CSV Export</span>
-                </a>
-            </div>
-        </div>
+        <h1 class="title" style="margin-bottom: 2rem;">Alle Verfahren</h1>
 
         <!-- Filter-Panel -->
         <div class="filter-panel">

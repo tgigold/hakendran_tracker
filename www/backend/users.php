@@ -26,12 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     // Validierung
     if (empty($username)) {
         $errors[] = 'Benutzername ist erforderlich.';
-    } elseif (substr($username, 0, 1) !== '@') {
-        $errors[] = 'Benutzername muss mit @ beginnen (z.B. @admin).';
+    } elseif (substr($username, 0, 1) === '@') {
+        $errors[] = 'Benutzername darf nicht mit @ beginnen. Nur der Anzeigename hat @ (z.B. Benutzername: admin, Anzeigename: @admin).';
     }
 
     if (empty($displayName)) {
         $errors[] = 'Anzeigename ist erforderlich.';
+    } elseif (substr($displayName, 0, 1) !== '@') {
+        $errors[] = 'Anzeigename muss mit @ beginnen (z.B. @admin).';
     }
 
     if (empty($password)) {
@@ -204,7 +206,7 @@ $users = $db->query("
 
         <div class="notification is-info is-light" style="margin-top: 2rem;">
             <p><strong>Hinweis:</strong> Benutzer können nicht gelöscht werden, um die Datenintegrität zu wahren. Deaktivieren Sie Benutzer stattdessen.</p>
-            <p style="margin-top: 0.5rem;"><strong>Benutzernamen:</strong> Müssen mit @ beginnen (z.B. @admin, @editor).</p>
+            <p style="margin-top: 0.5rem;"><strong>Login:</strong> Benutzername ohne @, Anzeigename mit @ (z.B. Benutzername: admin, Anzeigename: @admin).</p>
         </div>
     </section>
 </div>
@@ -220,18 +222,19 @@ $users = $db->query("
         <form method="POST">
             <section class="modal-card-body">
                 <div class="field">
-                    <label class="label">Benutzername</label>
+                    <label class="label">Benutzername (für Login)</label>
                     <div class="control">
-                        <input class="input" type="text" name="username" placeholder="@admin" required>
+                        <input class="input" type="text" name="username" placeholder="admin" required>
                     </div>
-                    <p class="help">Muss mit @ beginnen (z.B. @admin)</p>
+                    <p class="help">Ohne @ (z.B. admin, editor)</p>
                 </div>
 
                 <div class="field">
-                    <label class="label">Anzeigename</label>
+                    <label class="label">Anzeigename (öffentlich sichtbar)</label>
                     <div class="control">
-                        <input class="input" type="text" name="display_name" placeholder="Administrator" required>
+                        <input class="input" type="text" name="display_name" placeholder="@Administrator" required>
                     </div>
+                    <p class="help">Muss mit @ beginnen (z.B. @admin)</p>
                 </div>
 
                 <div class="field">

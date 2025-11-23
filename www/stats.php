@@ -212,7 +212,7 @@ $topDisputes = $db->query("
             <!-- Höchste Streitwerte -->
             <div class="column is-6">
                 <div class="box">
-                    <h2 class="title is-5">💰 Höchste Streitwerte</h2>
+                    <h2 class="title is-5">Höchste Streitwerte</h2>
                     <table class="table is-fullwidth is-hoverable">
                         <thead>
                             <tr>
@@ -241,7 +241,7 @@ $topDisputes = $db->query("
 </div>
 
 <!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.51.0/dist/chart.umd.min.js"></script>
+<script src="/assets/vendor/chart.umd.min.js"></script>
 <script>
 // Theme-aware Colors
 const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
