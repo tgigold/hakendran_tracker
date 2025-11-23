@@ -1,12 +1,3 @@
-<?php
-/**
- * Impressum
- */
-
-$pageTitle = 'Impressum';
-require_once __DIR__ . '/templates/header.php';
-?>
-
 <div class="container">
     <section class="section">
         <h1 class="title">Impressum</h1>
@@ -63,10 +54,8 @@ require_once __DIR__ . '/templates/header.php';
             <h2>Datenschutz</h2>
             <p>
                 Informationen zum Umgang mit personenbezogenen Daten finden Sie in unserer
-                <a href="/datenschutz.php">Datenschutzerklärung</a>.
+                <a href="/page.php?p=datenschutz">Datenschutzerklärung</a>.
             </p>
         </div>
     </section>
 </div>
-
-<?php require_once __DIR__ . '/templates/footer.php'; ?>
