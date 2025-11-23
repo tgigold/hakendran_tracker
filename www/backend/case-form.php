@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($_POST['new_plaintiff'])) {
                 $partyId = intval($_POST['new_plaintiff']);
                 $db->execute(
-                    "INSERT IGNORE INTO case_parties (case_id, party_id, role) VALUES (?, ?, 'plaintiff')",
+                    "INSERT IGNORE INTO track_case_parties (case_id, party_id, role) VALUES (?, ?, 'plaintiff')",
                     [$caseId, $partyId]
                 );
             }
@@ -120,9 +120,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($_POST['new_defendant'])) {
                 $partyId = intval($_POST['new_defendant']);
                 $db->execute(
-                    "INSERT IGNORE INTO case_parties (case_id, party_id, role) VALUES (?, ?, 'defendant')",
+                    "INSERT IGNORE INTO track_case_parties (case_id, party_id, role) VALUES (?, ?, 'defendant')",
                     [$caseId, $partyId]
                 );
+            }
+
+            // Status Update hinzufügen (wenn angegeben)
+            if ($isEdit && !empty($_POST['update_title']) && !empty($_POST['update_date'])) {
+                $updateData = [
+                    'case_id' => $caseId,
+                    'update_date' => $_POST['update_date'],
+                    'update_type' => $_POST['update_type'] ?? 'other',
+                    'title' => Helpers::sanitize($_POST['update_title']),
+                    'description' => Helpers::sanitize($_POST['update_description'] ?? ''),
+                    'source_url' => Helpers::sanitize($_POST['update_source_url'] ?? ''),
+                    'is_major' => isset($_POST['update_is_major']) ? 1 : 0,
+                    'created_by' => $auth->getUserId()
+                ];
+
+                $fields = array_keys($updateData);
+                $placeholders = array_fill(0, count($fields), '?');
+                $sql = "INSERT INTO track_case_updates (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
+                $db->insert($sql, array_values($updateData));
+                $auth->logAction('case_update_added', 'case', $caseId, "Added update: {$updateData['title']}");
             }
 
             $db->commit();
@@ -145,6 +165,18 @@ if ($isEdit) {
         INNER JOIN track_parties p ON cp.party_id = p.id
         WHERE cp.case_id = ?
         ORDER BY cp.role, p.name
+    ", [$caseId]);
+}
+
+// Case Updates laden (Edit-Mode)
+$caseUpdates = [];
+if ($isEdit) {
+    $caseUpdates = $db->query("
+        SELECT u.*, us.display_name as created_by_name
+        FROM track_case_updates u
+        LEFT JOIN track_users us ON u.created_by = us.id
+        WHERE u.case_id = ?
+        ORDER BY u.update_date DESC, u.created_at DESC
     ", [$caseId]);
 }
 
@@ -184,7 +216,7 @@ $csrfToken = $auth->generateCsrfToken();
 
             <!-- Section 1: Basisdaten -->
             <div class="box">
-                <h2 class="title is-5">📋 Basisdaten</h2>
+                <h2 class="title is-5">Basisdaten</h2>
 
                 <div class="columns is-multiline">
                     <div class="column is-12">
@@ -480,9 +512,137 @@ $csrfToken = $auth->generateCsrfToken();
                 </div>
             </div>
 
-            <!-- Section 6: Kontext -->
+            <!-- Section 6: Status-Updates (nur in Edit-Mode) -->
+            <?php if ($isEdit): ?>
             <div class="box">
-                <h2 class="title is-5">🔗 Kontext & Quellen</h2>
+                <h2 class="title is-5">Status-Updates & Timeline</h2>
+
+                <?php if (!empty($caseUpdates)): ?>
+                    <div style="margin-bottom: 2rem; max-height: 400px; overflow-y: auto;">
+                        <table class="table is-fullwidth is-hoverable is-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">Datum</th>
+                                    <th style="width: 120px;">Typ</th>
+                                    <th>Titel</th>
+                                    <th style="width: 150px;">Erstellt von</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($caseUpdates as $update): ?>
+                                <tr>
+                                    <td><?= Helpers::formatDate($update['update_date']) ?></td>
+                                    <td>
+                                        <span class="tag <?= $update['is_major'] ? 'is-warning' : 'is-light' ?>">
+                                            <?php
+                                            $typeLabels = [
+                                                'filing' => 'Einreichung',
+                                                'hearing' => 'Anhörung',
+                                                'ruling' => 'Urteil',
+                                                'settlement' => 'Vergleich',
+                                                'appeal' => 'Berufung',
+                                                'press_release' => 'Pressemitteilung',
+                                                'other' => 'Sonstiges'
+                                            ];
+                                            echo $typeLabels[$update['update_type']] ?? $update['update_type'];
+                                            ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong><?= Helpers::e($update['title']) ?></strong>
+                                        <?php if ($update['description']): ?>
+                                            <br><span class="is-size-7 has-text-grey"><?= Helpers::e(Helpers::truncate($update['description'], 80)) ?></span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="is-size-7"><?= Helpers::e($update['created_by_name'] ?? 'Unbekannt') ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <p class="has-text-grey" style="margin-bottom: 1.5rem;">Noch keine Updates vorhanden.</p>
+                <?php endif; ?>
+
+                <div class="notification is-info is-light">
+                    <strong>Neues Update hinzufügen</strong>
+                </div>
+
+                <div class="columns is-multiline">
+                    <div class="column is-3">
+                        <div class="field">
+                            <label class="label">Datum</label>
+                            <div class="control">
+                                <input class="input" type="date" name="update_date" value="<?= date('Y-m-d') ?>">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column is-3">
+                        <div class="field">
+                            <label class="label">Typ</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select name="update_type">
+                                        <option value="other">Sonstiges</option>
+                                        <option value="filing">Einreichung</option>
+                                        <option value="hearing">Anhörung</option>
+                                        <option value="ruling">Urteil</option>
+                                        <option value="settlement">Vergleich</option>
+                                        <option value="appeal">Berufung</option>
+                                        <option value="press_release">Pressemitteilung</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">Titel</label>
+                            <div class="control">
+                                <input class="input" type="text" name="update_title" placeholder="z.B. Anhörung verschoben">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column is-9">
+                        <div class="field">
+                            <label class="label">Beschreibung (optional)</label>
+                            <div class="control">
+                                <textarea class="textarea" name="update_description" rows="2" placeholder="Weitere Details zum Update..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column is-3">
+                        <div class="field">
+                            <label class="label">Quelle (optional)</label>
+                            <div class="control">
+                                <input class="input" type="url" name="update_source_url" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column is-12">
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" name="update_is_major">
+                                    Wichtiges Update (wird hervorgehoben)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="help">Updates werden beim Speichern des Verfahrens hinzugefügt. Lassen Sie Titel leer, wenn Sie kein neues Update hinzufügen möchten.</p>
+            </div>
+            <?php endif; ?>
+
+            <!-- Section 7: Kontext -->
+            <div class="box">
+                <h2 class="title is-5">Kontext & Quellen</h2>
 
                 <div class="field">
                     <label class="label">Hauptquelle (URL)</label>

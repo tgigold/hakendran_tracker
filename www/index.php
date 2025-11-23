@@ -83,8 +83,8 @@ function parseParties($partiesString) {
 <!-- Hero mit Suchfeld -->
 <div class="search-hero">
     <div class="container">
-        <h1 class="title is-2 has-text-centered" style="margin-bottom: 1.5rem;">
-            Weltweit tracken wir derzeit <?= $stats['total_cases'] ?> Gerichtsverfahren gegen BigTech – und das ist nur der Anfang
+        <h1 class="title is-2 has-text-centered has-text-white" style="margin-bottom: 1.5rem;">
+            Weltweit tracken wir derzeit <?= $stats['total_cases'] ?> Gerichtsverfahren gegen BigTech
         </h1>
 
         <!-- Statistik-Übersicht -->
@@ -131,7 +131,7 @@ function parseParties($partiesString) {
     <!-- Anstehende Anhörungen -->
     <?php if (!empty($upcomingHearings)): ?>
     <section class="section" style="padding-top: 0;">
-        <h2 class="title is-4">📅 Anstehende Anhörungen (30 Tage)</h2>
+        <h2 class="title is-4">Anstehende Anhörungen (30 Tage)</h2>
 
         <div class="box">
             <div class="table-container">

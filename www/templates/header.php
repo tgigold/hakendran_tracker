@@ -30,13 +30,10 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <title><?= isset($pageTitle) ? Helpers::e($pageTitle) . ' - ' : '' ?>Haken Dran Verfahrenstracker</title>
 
     <!-- Bulma CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="/assets/vendor/bulma.min.css">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/assets/css/style.css">
-
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23125882'/></svg>">
 </head>
 <body>
     <!-- Navigation -->

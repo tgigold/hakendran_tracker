@@ -278,7 +278,7 @@ require_once __DIR__ . '/templates/header.php';
                 <!-- Beschreibung -->
                 <?php if ($case['subject_matter']): ?>
                 <div class="box">
-                    <h2 class="title is-5">📝 Beschreibung</h2>
+                    <h2 class="title is-5">Beschreibung</h2>
                     <div class="content">
                         <?= $parsedown->text($case['subject_matter']) ?>
                     </div>
@@ -288,7 +288,7 @@ require_once __DIR__ . '/templates/header.php';
                 <!-- Timeline / Updates -->
                 <?php if (!empty($updates)): ?>
                 <div class="box">
-                    <h2 class="title is-5">📅 Timeline & Updates</h2>
+                    <h2 class="title is-5">Timeline & Updates</h2>
 
                     <div class="timeline">
                         <?php foreach ($updates as $update): ?>
@@ -418,7 +418,7 @@ require_once __DIR__ . '/templates/header.php';
                 <!-- Metadaten -->
                 <?php if ($case['internal_notes'] && $auth->isLoggedIn()): ?>
                 <div class="box">
-                    <h2 class="title is-6">📝 Interne Notizen</h2>
+                    <h2 class="title is-6">Interne Notizen</h2>
                     <div class="content is-small">
                         <?= nl2br(Helpers::e($case['internal_notes'])) ?>
                     </div>

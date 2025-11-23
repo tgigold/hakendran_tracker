@@ -92,13 +92,14 @@ www/assets/vendor/
 HINWEISE
 ================================================================================
 
-- ✅ AKTUALISIERT: Die Anwendung nutzt jetzt CDN-Links für Bibliotheken
-- CDN-Links sind direkt in den Templates eingebunden (header.php, stats.php)
+- ⚠️ WICHTIG: Die Anwendung nutzt jetzt VENDOR-Dateien (nicht CDN)
+- Die Dateien müssen MANUELL heruntergeladen und hier abgelegt werden
+- Benötigte Dateien:
+  * bulma.min.css (https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css)
+  * chart.umd.min.js (https://cdn.jsdelivr.net/npm/chart.js@4.51.0/dist/chart.umd.min.js)
+- Automatischer Download fehlgeschlagen (403 Forbidden - Netzwerkbeschränkungen)
+- Bitte laden Sie die Dateien manuell herunter und in diesen Ordner hochladen
 - Alle Bibliotheken sind MIT-lizenziert und können frei verwendet werden
-- Bulma CSS: https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css
-- Chart.js: https://cdn.jsdelivr.net/npm/chart.js@4.51.0/dist/chart.umd.min.js
-- Kein manueller Download mehr nötig!
-- Überprüfen Sie regelmäßig auf Updates für Sicherheit und Features
 
 
 ================================================================================

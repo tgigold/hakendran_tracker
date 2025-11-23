@@ -21,12 +21,7 @@ class Auth {
      * Benutzer einloggen
      */
     public function login($username, $password) {
-        // Benutzername sollte mit @ beginnen
-        if (substr($username, 0, 1) !== '@') {
-            $username = '@' . $username;
-        }
-
-        // User aus Datenbank laden
+        // User aus Datenbank laden (Username ohne @ Präfix)
         $user = $this->db->queryOne(
             "SELECT id, username, password_hash, display_name, email, is_active FROM track_users WHERE username = ?",
             [$username]
