@@ -177,48 +177,56 @@ class Helpers {
     }
 
     /**
-     * Ländername aus Code
+     * Länder aus JSON laden (mit Caching)
      */
-    public static function countryName($code) {
-        $countries = [
-            'DE' => 'Deutschland',
-            'AT' => 'Österreich',
-            'CH' => 'Schweiz',
-            'US' => 'USA',
-            'GB' => 'Großbritannien',
-            'FR' => 'Frankreich',
-            'IT' => 'Italien',
-            'ES' => 'Spanien',
-            'NL' => 'Niederlande',
-            'BE' => 'Belgien',
-            'PL' => 'Polen',
-            'SE' => 'Schweden',
-            'DK' => 'Dänemark',
-            'NO' => 'Norwegen',
-            'FI' => 'Finnland',
-            'IE' => 'Irland',
-            'EU' => 'Europäische Union'
-        ];
+    private static $countriesCache = null;
 
-        return $countries[$code] ?? $code;
+    public static function getCountries() {
+        if (self::$countriesCache !== null) {
+            return self::$countriesCache;
+        }
+
+        $jsonPath = __DIR__ . '/../data/countries.json';
+
+        if (!file_exists($jsonPath)) {
+            return [];
+        }
+
+        $jsonContent = file_get_contents($jsonPath);
+        $data = json_decode($jsonContent, true);
+
+        self::$countriesCache = $data['countries'] ?? [];
+        return self::$countriesCache;
     }
 
     /**
-     * Länderflagge-Emoji
+     * Ländername aus Code
+     */
+    public static function countryName($code) {
+        $countries = self::getCountries();
+
+        foreach ($countries as $country) {
+            if ($country['code'] === $code) {
+                return $country['name'];
+            }
+        }
+
+        return $code;
+    }
+
+    /**
+     * Länderflagge-Emoji aus JSON
      */
     public static function countryFlag($code) {
-        if ($code === 'EU') {
-            return '🇪🇺';
+        $countries = self::getCountries();
+
+        foreach ($countries as $country) {
+            if ($country['code'] === $code) {
+                return $country['flag'];
+            }
         }
 
-        $code = strtoupper($code);
-        if (strlen($code) !== 2) {
-            return '';
-        }
-
-        // Unicode Regional Indicator Symbols
-        $offset = 127397;
-        return mb_chr($offset + ord($code[0])) . mb_chr($offset + ord($code[1]));
+        return '';
     }
 
     /**

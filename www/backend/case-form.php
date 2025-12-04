@@ -381,17 +381,11 @@ $csrfToken = $auth->generateCsrfToken();
                                 <div class="select is-fullwidth">
                                     <select name="country_code">
                                         <option value="">-- Auswählen --</option>
-                                        <option value="DE" <?= ($case['country_code'] ?? '') === 'DE' ? 'selected' : '' ?>>🇩🇪 Deutschland</option>
-                                        <option value="AT" <?= ($case['country_code'] ?? '') === 'AT' ? 'selected' : '' ?>>🇦🇹 Österreich</option>
-                                        <option value="CH" <?= ($case['country_code'] ?? '') === 'CH' ? 'selected' : '' ?>>🇨🇭 Schweiz</option>
-                                        <option value="US" <?= ($case['country_code'] ?? '') === 'US' ? 'selected' : '' ?>>🇺🇸 USA</option>
-                                        <option value="GB" <?= ($case['country_code'] ?? '') === 'GB' ? 'selected' : '' ?>>🇬🇧 Großbritannien</option>
-                                        <option value="FR" <?= ($case['country_code'] ?? '') === 'FR' ? 'selected' : '' ?>>🇫🇷 Frankreich</option>
-                                        <option value="IT" <?= ($case['country_code'] ?? '') === 'IT' ? 'selected' : '' ?>>🇮🇹 Italien</option>
-                                        <option value="ES" <?= ($case['country_code'] ?? '') === 'ES' ? 'selected' : '' ?>>🇪🇸 Spanien</option>
-                                        <option value="NL" <?= ($case['country_code'] ?? '') === 'NL' ? 'selected' : '' ?>>🇳🇱 Niederlande</option>
-                                        <option value="BE" <?= ($case['country_code'] ?? '') === 'BE' ? 'selected' : '' ?>>🇧🇪 Belgien</option>
-                                        <option value="EU" <?= ($case['country_code'] ?? '') === 'EU' ? 'selected' : '' ?>>🇪🇺 EU</option>
+                                        <?php foreach (Helpers::getCountries() as $country): ?>
+                                            <option value="<?= $country['code'] ?>" <?= ($case['country_code'] ?? '') === $country['code'] ? 'selected' : '' ?>>
+                                                <?= $country['flag'] ?> <?= Helpers::e($country['name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>
