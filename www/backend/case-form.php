@@ -239,10 +239,11 @@ $csrfToken = $auth->generateCsrfToken();
 
                     <div class="column is-6">
                         <div class="field">
-                            <label class="label">Gerichtsakte</label>
+                            <label class="label">Gerichtsakte (URL)</label>
                             <div class="control">
-                                <input class="input" type="text" name="court_file" value="<?= Helpers::e($case['court_file'] ?? '') ?>">
+                                <input class="input" type="url" name="court_file" value="<?= Helpers::e($case['court_file'] ?? '') ?>" placeholder="https://...">
                             </div>
+                            <p class="help">Link zur Gerichtsakte oder zum Verfahrensdokument</p>
                         </div>
                     </div>
 
@@ -271,6 +272,8 @@ $csrfToken = $auth->generateCsrfToken();
                                         <option value="ongoing" <?= ($case['status'] ?? 'ongoing') === 'ongoing' ? 'selected' : '' ?>>Laufend</option>
                                         <option value="settled" <?= ($case['status'] ?? '') === 'settled' ? 'selected' : '' ?>>Vergleich</option>
                                         <option value="dismissed" <?= ($case['status'] ?? '') === 'dismissed' ? 'selected' : '' ?>>Abgewiesen</option>
+                                        <option value="discontinued" <?= ($case['status'] ?? '') === 'discontinued' ? 'selected' : '' ?>>Eingestellt</option>
+                                        <option value="withdrawn" <?= ($case['status'] ?? '') === 'withdrawn' ? 'selected' : '' ?>>Zurückgezogen</option>
                                         <option value="won_plaintiff" <?= ($case['status'] ?? '') === 'won_plaintiff' ? 'selected' : '' ?>>Kläger gewonnen</option>
                                         <option value="won_defendant" <?= ($case['status'] ?? '') === 'won_defendant' ? 'selected' : '' ?>>Beklagter gewonnen</option>
                                         <option value="appeal" <?= ($case['status'] ?? '') === 'appeal' ? 'selected' : '' ?>>Berufung</option>
