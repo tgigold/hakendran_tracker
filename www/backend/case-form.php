@@ -239,10 +239,11 @@ $csrfToken = $auth->generateCsrfToken();
 
                     <div class="column is-6">
                         <div class="field">
-                            <label class="label">Gerichtsakte</label>
+                            <label class="label">Gerichtsakte (URL)</label>
                             <div class="control">
-                                <input class="input" type="text" name="court_file" value="<?= Helpers::e($case['court_file'] ?? '') ?>">
+                                <input class="input" type="url" name="court_file" value="<?= Helpers::e($case['court_file'] ?? '') ?>" placeholder="https://...">
                             </div>
+                            <p class="help">Link zur Gerichtsakte oder zum Verfahrensdokument</p>
                         </div>
                     </div>
 
@@ -271,6 +272,8 @@ $csrfToken = $auth->generateCsrfToken();
                                         <option value="ongoing" <?= ($case['status'] ?? 'ongoing') === 'ongoing' ? 'selected' : '' ?>>Laufend</option>
                                         <option value="settled" <?= ($case['status'] ?? '') === 'settled' ? 'selected' : '' ?>>Vergleich</option>
                                         <option value="dismissed" <?= ($case['status'] ?? '') === 'dismissed' ? 'selected' : '' ?>>Abgewiesen</option>
+                                        <option value="discontinued" <?= ($case['status'] ?? '') === 'discontinued' ? 'selected' : '' ?>>Eingestellt</option>
+                                        <option value="withdrawn" <?= ($case['status'] ?? '') === 'withdrawn' ? 'selected' : '' ?>>Zurückgezogen</option>
                                         <option value="won_plaintiff" <?= ($case['status'] ?? '') === 'won_plaintiff' ? 'selected' : '' ?>>Kläger gewonnen</option>
                                         <option value="won_defendant" <?= ($case['status'] ?? '') === 'won_defendant' ? 'selected' : '' ?>>Beklagter gewonnen</option>
                                         <option value="appeal" <?= ($case['status'] ?? '') === 'appeal' ? 'selected' : '' ?>>Berufung</option>
@@ -378,17 +381,11 @@ $csrfToken = $auth->generateCsrfToken();
                                 <div class="select is-fullwidth">
                                     <select name="country_code">
                                         <option value="">-- Auswählen --</option>
-                                        <option value="DE" <?= ($case['country_code'] ?? '') === 'DE' ? 'selected' : '' ?>>🇩🇪 Deutschland</option>
-                                        <option value="AT" <?= ($case['country_code'] ?? '') === 'AT' ? 'selected' : '' ?>>🇦🇹 Österreich</option>
-                                        <option value="CH" <?= ($case['country_code'] ?? '') === 'CH' ? 'selected' : '' ?>>🇨🇭 Schweiz</option>
-                                        <option value="US" <?= ($case['country_code'] ?? '') === 'US' ? 'selected' : '' ?>>🇺🇸 USA</option>
-                                        <option value="GB" <?= ($case['country_code'] ?? '') === 'GB' ? 'selected' : '' ?>>🇬🇧 Großbritannien</option>
-                                        <option value="FR" <?= ($case['country_code'] ?? '') === 'FR' ? 'selected' : '' ?>>🇫🇷 Frankreich</option>
-                                        <option value="IT" <?= ($case['country_code'] ?? '') === 'IT' ? 'selected' : '' ?>>🇮🇹 Italien</option>
-                                        <option value="ES" <?= ($case['country_code'] ?? '') === 'ES' ? 'selected' : '' ?>>🇪🇸 Spanien</option>
-                                        <option value="NL" <?= ($case['country_code'] ?? '') === 'NL' ? 'selected' : '' ?>>🇳🇱 Niederlande</option>
-                                        <option value="BE" <?= ($case['country_code'] ?? '') === 'BE' ? 'selected' : '' ?>>🇧🇪 Belgien</option>
-                                        <option value="EU" <?= ($case['country_code'] ?? '') === 'EU' ? 'selected' : '' ?>>🇪🇺 EU</option>
+                                        <?php foreach (Helpers::getCountries() as $country): ?>
+                                            <option value="<?= $country['code'] ?>" <?= ($case['country_code'] ?? '') === $country['code'] ? 'selected' : '' ?>>
+                                                <?= $country['flag'] ?> <?= Helpers::e($country['name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>

@@ -42,6 +42,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_party'])) {
     }
 }
 
+// Alias hinzufügen
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_alias'])) {
+    $partyId = intval($_POST['party_id']);
+    $aliasName = Helpers::sanitize($_POST['alias_name'] ?? '');
+
+    if (empty($aliasName)) {
+        $errors[] = 'Alias-Name ist erforderlich.';
+    } else {
+        try {
+            $db->insert(
+                "INSERT INTO track_party_aliases (party_id, alias_name) VALUES (?, ?)",
+                [$partyId, $aliasName]
+            );
+            $success = "Alias '{$aliasName}' wurde hinzugefügt.";
+            $auth->logAction('alias_created', 'party', $partyId, "Added alias: {$aliasName}");
+        } catch (Exception $e) {
+            if (strpos($e->getMessage(), 'Duplicate') !== false) {
+                $errors[] = "Alias '{$aliasName}' existiert bereits für diesen Beteiligten.";
+            } else {
+                $errors[] = 'Fehler beim Hinzufügen: ' . $e->getMessage();
+            }
+        }
+    }
+}
+
+// Alias löschen
+if (isset($_GET['delete_alias']) && is_numeric($_GET['delete_alias'])) {
+    $aliasId = intval($_GET['delete_alias']);
+    $alias = $db->queryOne("SELECT alias_name FROM track_party_aliases WHERE id = ?", [$aliasId]);
+
+    if ($alias) {
+        $db->execute("DELETE FROM track_party_aliases WHERE id = ?", [$aliasId]);
+        $success = "Alias '{$alias['alias_name']}' wurde gelöscht.";
+        $auth->logAction('alias_deleted', 'party', null, "Deleted alias: {$alias['alias_name']}");
+    }
+}
+
 // Party löschen
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $deleteId = intval($_GET['delete']);
@@ -54,6 +91,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         if ($usageCount > 0) {
             $errors[] = "Beteiligter kann nicht gelöscht werden, da er in {$usageCount} Verfahren verwendet wird.";
         } else {
+            // Aliase werden automatisch durch CASCADE gelöscht
             $db->execute("DELETE FROM track_parties WHERE id = ?", [$deleteId]);
             $success = "Beteiligter '{$party['name']}' wurde gelöscht.";
             $auth->logAction('party_deleted', 'party', $deleteId, "Deleted party: {$party['name']}");
@@ -61,7 +99,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     }
 }
 
-// Alle Parties laden
+// Alle Parties laden (mit Alias-Unterstützung)
 $search = $_GET['search'] ?? '';
 $filter = $_GET['filter'] ?? '';
 
@@ -69,12 +107,14 @@ $where = [];
 $params = [];
 
 if (!empty($search)) {
-    $where[] = "name LIKE ?";
+    // Suche in Name UND Aliasen
+    $where[] = "(p.name LIKE ? OR EXISTS (SELECT 1 FROM track_party_aliases a WHERE a.party_id = p.id AND a.alias_name LIKE ?))";
+    $params[] = '%' . $search . '%';
     $params[] = '%' . $search . '%';
 }
 
 if ($filter === 'big_tech') {
-    $where[] = "is_big_tech = 1";
+    $where[] = "p.is_big_tech = 1";
 }
 
 $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -88,6 +128,14 @@ $parties = $db->query("
     GROUP BY p.id
     ORDER BY p.name
 ", $params);
+
+// Aliase für alle Parties laden
+foreach ($parties as &$party) {
+    $party['aliases'] = $db->query(
+        "SELECT id, alias_name FROM track_party_aliases WHERE party_id = ? ORDER BY alias_name",
+        [$party['id']]
+    );
+}
 ?>
 
 <div class="container">
@@ -176,6 +224,14 @@ $parties = $db->query("
                         <tr>
                             <td>
                                 <strong><?= Helpers::e($party['name']) ?></strong>
+                                <?php if (!empty($party['aliases'])): ?>
+                                    <br><span class="is-size-7 has-text-grey">
+                                        Aliase: <?php
+                                        $aliasNames = array_map(function($a) { return Helpers::e($a['alias_name']); }, $party['aliases']);
+                                        echo implode(', ', $aliasNames);
+                                        ?>
+                                    </span>
+                                <?php endif; ?>
                                 <?php if ($party['website']): ?>
                                     <br><a href="<?= Helpers::e($party['website']) ?>" target="_blank" class="is-size-7">🔗 Website</a>
                                 <?php endif; ?>
@@ -219,6 +275,7 @@ $parties = $db->query("
                             </td>
                             <td>
                                 <div class="buttons are-small">
+                                    <button class="button is-info is-light" onclick="showAliasModal(<?= $party['id'] ?>, '<?= Helpers::e($party['name']) ?>')">Aliase</button>
                                     <a href="?delete=<?= $party['id'] ?>" class="button is-danger is-light" onclick="return confirm('Wirklich löschen?')">Löschen</a>
                                 </div>
                             </td>
@@ -270,11 +327,11 @@ $parties = $db->query("
                         <div class="select is-fullwidth">
                             <select name="country_code">
                                 <option value="">-- Auswählen --</option>
-                                <option value="DE">🇩🇪 Deutschland</option>
-                                <option value="US">🇺🇸 USA</option>
-                                <option value="GB">🇬🇧 Großbritannien</option>
-                                <option value="FR">🇫🇷 Frankreich</option>
-                                <option value="EU">🇪🇺 EU</option>
+                                <?php foreach (Helpers::getCountries() as $country): ?>
+                                    <option value="<?= $country['code'] ?>">
+                                        <?= $country['flag'] ?> <?= Helpers::e($country['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
@@ -303,5 +360,64 @@ $parties = $db->query("
         </form>
     </div>
 </div>
+
+<!-- Alias Modal -->
+<div class="modal" id="aliasModal">
+    <div class="modal-background" onclick="document.getElementById('aliasModal').classList.remove('is-active')"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Aliase verwalten: <span id="aliasPartyName"></span></p>
+            <button class="delete" aria-label="close" onclick="document.getElementById('aliasModal').classList.remove('is-active')"></button>
+        </header>
+        <section class="modal-card-body">
+            <div id="aliasListContainer" style="margin-bottom: 1.5rem;">
+                <p class="has-text-grey">Lade Aliase...</p>
+            </div>
+
+            <form method="POST">
+                <input type="hidden" name="party_id" id="aliasPartyId">
+                <div class="field has-addons">
+                    <div class="control is-expanded">
+                        <input class="input" type="text" name="alias_name" id="aliasNameInput" placeholder="Neuer Alias-Name...">
+                    </div>
+                    <div class="control">
+                        <button type="submit" name="add_alias" class="button is-primary">Hinzufügen</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button" onclick="document.getElementById('aliasModal').classList.remove('is-active')">Schließen</button>
+        </footer>
+    </div>
+</div>
+
+<script>
+function showAliasModal(partyId, partyName) {
+    document.getElementById('aliasPartyId').value = partyId;
+    document.getElementById('aliasPartyName').textContent = partyName;
+    document.getElementById('aliasNameInput').value = '';
+
+    // Aliase laden und anzeigen
+    const party = <?= json_encode($parties) ?>.find(p => p.id == partyId);
+    const aliasContainer = document.getElementById('aliasListContainer');
+
+    if (party && party.aliases && party.aliases.length > 0) {
+        let html = '<div class="tags">';
+        party.aliases.forEach(alias => {
+            html += `<span class="tag is-medium">
+                ${alias.alias_name}
+                <a href="?delete_alias=${alias.id}" onclick="return confirm('Alias löschen?')" class="delete is-small"></a>
+            </span>`;
+        });
+        html += '</div>';
+        aliasContainer.innerHTML = html;
+    } else {
+        aliasContainer.innerHTML = '<p class="has-text-grey">Keine Aliase vorhanden</p>';
+    }
+
+    document.getElementById('aliasModal').classList.add('is-active');
+}
+</script>
 
 <?php require_once __DIR__ . '/../templates/footer.php'; ?>

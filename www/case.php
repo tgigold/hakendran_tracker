@@ -71,6 +71,22 @@ $updates = $db->query("
     ORDER BY u.update_date DESC, u.created_at DESC
 ", [$caseId]);
 
+// Fall-Erstellung als erstes Update hinzufügen (synthetisch)
+$creationUpdate = [
+    'id' => 'creation',
+    'case_id' => $caseId,
+    'update_date' => $case['created_at'],
+    'update_type' => 'filing',
+    'title' => 'Verfahren angelegt',
+    'description' => 'Verfahren wurde im Tracker erfasst',
+    'source_url' => null,
+    'is_major' => 1,
+    'created_by' => $case['created_by'],
+    'created_at' => $case['created_at'],
+    'created_by_name' => $case['created_by_name']
+];
+array_push($updates, $creationUpdate);
+
 // Rechtsgrundlagen laden
 $legalBases = $db->query("
     SELECT lb.*
@@ -161,7 +177,22 @@ require_once __DIR__ . '/templates/header.php';
                             <?php if ($case['court_file']): ?>
                             <tr>
                                 <th>Gerichtsakte</th>
-                                <td><?= Helpers::e($case['court_file']) ?></td>
+                                <td>
+                                    <a href="<?= Helpers::e($case['court_file']) ?>" target="_blank" rel="noopener">
+                                        <?php
+                                        // Nur Domain anzeigen
+                                        $parsed = parse_url($case['court_file']);
+                                        echo Helpers::e($parsed['host'] ?? $case['court_file']);
+                                        ?>
+                                        <span class="icon is-small">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                <polyline points="15 3 21 3 21 9"></polyline>
+                                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                                            </svg>
+                                        </span>
+                                    </a>
+                                </td>
                             </tr>
                             <?php endif; ?>
 

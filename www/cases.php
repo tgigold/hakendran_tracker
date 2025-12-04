@@ -228,6 +228,8 @@ function parseParties($partiesString) {
                                         <option value="ongoing" <?= $status === 'ongoing' ? 'selected' : '' ?>>Laufend</option>
                                         <option value="settled" <?= $status === 'settled' ? 'selected' : '' ?>>Vergleich</option>
                                         <option value="dismissed" <?= $status === 'dismissed' ? 'selected' : '' ?>>Abgewiesen</option>
+                                        <option value="discontinued" <?= $status === 'discontinued' ? 'selected' : '' ?>>Eingestellt</option>
+                                        <option value="withdrawn" <?= $status === 'withdrawn' ? 'selected' : '' ?>>Zurückgezogen</option>
                                         <option value="won_plaintiff" <?= $status === 'won_plaintiff' ? 'selected' : '' ?>>Kläger gewonnen</option>
                                         <option value="won_defendant" <?= $status === 'won_defendant' ? 'selected' : '' ?>>Beklagter gewonnen</option>
                                         <option value="appeal" <?= $status === 'appeal' ? 'selected' : '' ?>>Berufung</option>
